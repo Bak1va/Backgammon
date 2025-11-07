@@ -3,6 +3,7 @@
 #include "IGame.h"
 #include "IGameObserver.h"
 #include "Board.h"
+#include "GameStateDTO.h"
 
 class Game : public IGame {
 private:
@@ -40,6 +41,9 @@ public:
 	Color getColumnColor(int index) const override;
 	int getBarCount(Color player) const override;
 	int getBorneOffCount(Color player) const override;
+	GameStateDTO getState() const override;               
+	bool canSelectPoint(int index) const override;          
+	std::vector<int> getLegalTargets(int fromIndex) const override;
 	void addObserver(IGameObserver* observer) override;
 	void removeObserver(IGameObserver* observer) override;
 };

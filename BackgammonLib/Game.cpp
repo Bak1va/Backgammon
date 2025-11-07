@@ -1,4 +1,4 @@
-#include <algorithm>
+﻿#include <algorithm>
 #include <random>
 #include "Game.h"
 
@@ -10,6 +10,7 @@ Game::~Game() {
 }
 
 void Game::start() {
+	m_board = Board(); // reset board
 	m_phase = GamePhase::InProgress;
 	m_currentPlayer = WHITE;
 	m_dice[0] = m_dice[1] = 0;
@@ -131,6 +132,98 @@ int Game::getBarCount(Color player) const {
 int Game::getBorneOffCount(Color player) const {
 	return m_board.getBorneOffCount(playerIndex(player));
 }
+
+GameStateDTO Game::getState() const {
+	GameStateDTO s;
+
+	for (int i = 0; i < 24; ++i) {
+		const Column& col = m_board.getColumn(i);
+		s.pieceCounts[i] = col.getPieceCount();
+		s.colors[i] = col.getColor();
+	}
+
+	s.barWhite = m_board.getBarCount(0);
+	s.barBlack = m_board.getBarCount(1);
+
+	s.borneOffWhite = m_board.getBorneOffCount(0);
+	s.borneOffBlack = m_board.getBorneOffCount(1);
+
+	s.currentPlayer = m_currentPlayer;
+
+	s.dice1 = m_dice[0];
+	s.dice2 = m_dice[1];
+
+	return s;
+}
+
+bool Game::canSelectPoint(int index) const {
+	if (m_phase != GamePhase::InProgress) return false;
+	if (index < 0 || index >= 24) return false;
+
+	const Column& col = m_board.getColumn(index);
+	if (col.getPieceCount() == 0) return false;
+	if (col.getColor() != m_currentPlayer) return false;
+	if (!m_diceRolled) return false;
+
+	int distances[2] = { m_dice[0], m_dice[1] };
+	for (int d : distances) {
+		if (d <= 0) continue;
+
+		int toIndex = (m_currentPlayer == WHITE)
+			? index + d
+			: index - d;
+
+		if (toIndex < 0 || toIndex >= 24) {
+
+			continue;
+		}
+
+		if (!isMoveBlocked(toIndex, m_currentPlayer)) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
+std::vector<int> Game::getLegalTargets(int fromIndex) const {
+	std::vector<int> targets;
+
+	if (!canSelectPoint(fromIndex)) {
+		return targets;
+	}
+
+	if (!m_diceRolled) {
+		return targets;
+	}
+
+	int dirs[2] = { m_dice[0], m_dice[1] };
+
+	for (int d : dirs) {
+		if (d <= 0) continue;
+
+		int toIndex = (m_currentPlayer == WHITE)
+			? fromIndex + d
+			: fromIndex - d;
+
+		if (toIndex < 0 || toIndex >= 24) {
+
+			continue;
+		}
+
+		if (isMoveBlocked(toIndex, m_currentPlayer)) {
+			continue;
+		}
+
+		if (std::find(targets.begin(), targets.end(), toIndex) == targets.end()) {
+			targets.push_back(toIndex);
+		}
+	}
+
+	return targets;
+}
+
 
 void Game::addObserver(IGameObserver* observer) {
 	if (!observer) return;

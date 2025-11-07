@@ -1,6 +1,7 @@
 #pragma once
 #include "Color.h"
 #include "MoveResult.h"
+#include "GameStateDTO.h"
 
 class IGameObserver;
 
@@ -36,6 +37,12 @@ public:
 	// observer
 	virtual void addObserver(IGameObserver* observer) = 0;
 	virtual void removeObserver(IGameObserver* observer) = 0;
+
+	virtual GameStateDTO getState() const = 0;
+
+	// helpers for UI
+	virtual bool canSelectPoint(int index) const = 0;
+	virtual std::vector<int> getLegalTargets(int fromIndex) const = 0;
 };
 
 

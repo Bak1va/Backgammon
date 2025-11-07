@@ -28,6 +28,7 @@
     <ClInclude Include="Board.h" />
     <ClInclude Include="Color.h" />
     <ClInclude Include="Column.h" />
+    <ClInclude Include="GameStateDTO.h" />
     <ClInclude Include="MoveResult.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="IGame.h" />
