@@ -63,6 +63,11 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
   </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\BackgammonLib\</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
     <ClCompile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -96,7 +101,16 @@
     <QtUic Include="BackgammonUI.ui" />
     <QtMoc Include="BackgammonUI.h" />
     <ClCompile Include="BackgammonUI.cpp" />
+    <ClCompile Include="BoardWidget.cpp" />
     <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="BoardWidget.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\BackgammonLib\BackgammonLib.vcxproj">
+      <Project>{9e8d1bd3-53dd-4a65-ad14-de68f40ae1d6}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
