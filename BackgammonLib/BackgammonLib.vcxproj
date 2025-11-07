@@ -22,6 +22,7 @@
     <ClCompile Include="Board.cpp" />
     <ClCompile Include="Column.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Game.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Board.h" />
@@ -29,6 +30,9 @@
     <ClInclude Include="Column.h" />
     <ClInclude Include="MoveResult.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="IGame.h" />
+    <ClInclude Include="IGameObserver.h" />
+    <ClInclude Include="Game.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

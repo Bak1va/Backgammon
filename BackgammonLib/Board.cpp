@@ -39,6 +39,14 @@ Column& Board::getColumn(int index) {
     return emptyColumn;
 }
 
+const Column& Board::getColumn(int index) const {
+    if (index >= 0 && index < 24) {
+        return m_columns[index];
+    }
+    static Column emptyColumn(0, NONE);
+    return emptyColumn;
+}
+
 int Board::getBarCount(int playerIndex) const {
     if (playerIndex >= 0 && playerIndex < 2) {
         return m_barCount[playerIndex];

@@ -13,9 +13,8 @@ public:
 
 	void addPiece(Color color);
 	void removePiece();
-	int getPieceCount();
-	Color getColor();
+    int getPieceCount() const;
+    Color getColor() const;
 	void setColor(Color color);
 
 };
-#pragma once

@@ -8,10 +8,10 @@ Column::Column(int pieceCount, Color color)
 }
 Column::~Column() {
 }
-Color Column::getColor() {
+Color Column::getColor() const {
 	return m_color;
 }
-int Column::getPieceCount() {
+int Column::getPieceCount() const {
 	return m_pieceCount;
 }
 

@@ -1,5 +1,4 @@
 #pragma once
-#pragma once
 #include <array>
 #include "Column.h"
 
@@ -14,8 +13,9 @@ public:
 	Board();
 	~Board();
 	Column& getColumn(int index);
-	int getBarCount(int playerIndex) const;
-	int getBorneOffCount(int playerIndex) const;
+	const Column& getColumn(int index) const;
+    int getBarCount(int playerIndex) const;
+    int getBorneOffCount(int playerIndex) const;
 	void incrementBarCount(int playerIndex);
 	void decrementBarCount(int playerIndex);
 	void incrementBorneOffCount(int playerIndex);

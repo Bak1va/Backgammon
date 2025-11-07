@@ -4,4 +4,3 @@ enum Color {
 	WHITE,
 	NONE
 };
-#pragma once
