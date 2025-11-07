@@ -19,20 +19,16 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="C:\Users\balan\Desktop\aaa\lib\Board.h" />
-    <ClInclude Include="C:\Users\balan\Desktop\aaa\lib\Color.h" />
-    <ClInclude Include="C:\Users\balan\Desktop\aaa\lib\Column.h" />
-    <ClInclude Include="C:\Users\balan\Desktop\aaa\lib\GameModel.h" />
-    <ClInclude Include="C:\Users\balan\Desktop\aaa\lib\IGameModel.h" />
-    <ClInclude Include="C:\Users\balan\Desktop\aaa\lib\IGameObserver.h" />
-    <ClInclude Include="C:\Users\balan\Desktop\aaa\lib\MoveResult.h" />
-    <ClInclude Include="C:\Users\balan\Desktop\aaa\lib\Player.h" />
+    <ClCompile Include="Board.cpp" />
+    <ClCompile Include="Column.cpp" />
+    <ClCompile Include="Player.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C:\Users\balan\Desktop\aaa\lib\Board.cpp" />
-    <ClCompile Include="C:\Users\balan\Desktop\aaa\lib\Column.cpp" />
-    <ClCompile Include="C:\Users\balan\Desktop\aaa\lib\GameModel.cpp" />
-    <ClCompile Include="C:\Users\balan\Desktop\aaa\lib\Player.cpp" />
+    <ClInclude Include="Board.h" />
+    <ClInclude Include="Color.h" />
+    <ClInclude Include="Column.h" />
+    <ClInclude Include="MoveResult.h" />
+    <ClInclude Include="Player.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
