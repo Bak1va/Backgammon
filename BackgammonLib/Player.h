@@ -9,7 +9,6 @@ private:
 public:
 	Player(Color color);
 	~Player();
-	Color GetColor() const;
+	Color getColor() const;
 };
 
-#pragma once

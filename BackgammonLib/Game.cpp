@@ -102,7 +102,7 @@ MoveResult Game::makeMove(int fromIndex, int toIndex) {
 
 	// consume die used
 	if (distance == m_dice[0]) m_dice[0] = 0; else m_dice[1] = 0;
-	if (m_dice[0] == 0 && m_dice[1] == 0) {
+	if (m_dice[0] == 0 && m_dice[1] == 0 || !hasMovesAvailable()) {
 		m_diceRolled = false;
 		switchTurn();
 	}

@@ -6,6 +6,6 @@ Player::Player(Color color) : playerColor(color) {
 Player::~Player() {
 }
 
-Color Player::GetColor() const {
+Color Player::getColor() const {
     return playerColor;
 }

@@ -27,7 +27,7 @@ void Column::setColor(Color color) {
 	m_color = color;
 }
 void Column::addPiece(Color color) {
-	if (m_color == NONE || (m_pieceCount == 1 && m_color != color)) {
+	if (m_color == NONE) {
 		m_color = color;
 		m_pieceCount = 1;
 	}
