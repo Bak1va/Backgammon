@@ -165,22 +165,22 @@ void BoardWidget::drawPieces(QPainter& painter) {
 
             if (pointIndex >= 0 && pointIndex <= 5) {
                 x = pointIndex * triangleWidth + triangleWidth / 2;
-                y = pieceRadius + 10;  
+                y = pieceRadius + 5;  
                 isTopRow = true;
             }
             else if (pointIndex >= 6 && pointIndex <= 11) {
                 x = barX + barWidth + (pointIndex - 6) * triangleWidth + triangleWidth / 2;
-                y = pieceRadius + 10;
+                y = pieceRadius + 5;
                 isTopRow = true;
             }
             else if (pointIndex >= 12 && pointIndex <= 17) {
                 x = barX + barWidth + (pointIndex - 12) * triangleWidth + triangleWidth / 2;
-                y = boardHeight - pieceRadius - 10;
+                y = boardHeight - pieceRadius - 5;
                 isTopRow = false;
             }
             else {  
                 x = (pointIndex - 18) * triangleWidth + triangleWidth / 2;
-                y = boardHeight - pieceRadius - 10;
+                y = boardHeight - pieceRadius - 5;
                 isTopRow = false;
             }
 
@@ -201,7 +201,7 @@ void BoardWidget::drawPiecesAtPoint(QPainter& painter, int centerX, int centerY,
     painter.setPen(QPen(borderColor, 2));
 
 
-    int spacing = radius * 2 + 2;  
+    int spacing = radius * 2 + 3;  
     int maxVisiblePieces = 5;  // Show max 5 pieces, then show count
 
     for (int i = 0; i < std::min(count, maxVisiblePieces); i++) {
