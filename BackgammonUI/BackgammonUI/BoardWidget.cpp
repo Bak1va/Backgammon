@@ -89,75 +89,167 @@ void BoardWidget::drawBoard(QPainter& p)
 {
     const int w = width();
     const int h = height();
-    const int midY = h / 2;
-    const int colWidth = w / 12;
+	int barWidth = 40;
+    int barX = w/ 2 - barWidth / 2;
+    int leftSideWidth = barX;
+    int rightSideWidth = w - (barX + barWidth);
+    int triangleWidth = leftSideWidth / 6;
+    int triangleHeight = h / 2 - 20;
 
-    // Triunghiuri sus (0..11)
-    for (int i = 0; i < 12; ++i) {
-        QPoint pts[3] = {
-            QPoint(i * colWidth, 0),
-            QPoint((i + 1) * colWidth, 0),
-            QPoint(i * colWidth + colWidth / 2, midY - 10)
-        };
-        QColor c = (i % 2 == 0) ? QColor(200, 180, 120) : QColor(80, 50, 30);
-        p.setBrush(c);
-        p.setPen(Qt::NoPen);
-        p.drawPolygon(pts, 3);
+
+    QRect barRect(barX, 0, barWidth, h);
+    QLinearGradient barGradient(barX, 0, barX + barWidth, 0);
+    barGradient.setColorAt(0, QColor(101, 67, 33));      
+    barGradient.setColorAt(0.5, QColor(139, 69, 19));    
+    barGradient.setColorAt(1, QColor(101, 67, 33));      
+    p.fillRect(barRect, barGradient);
+    // Draw left side triangles 
+    for (int i = 0; i < 6; i++) {
+
+        drawTriangle(p, i * triangleWidth, 0, triangleWidth, triangleHeight, false, i);
+
+        drawTriangle(p, i * triangleWidth, h, triangleWidth, triangleHeight, true, 18 + i);
     }
 
-    // Triunghiuri jos (12..23)
-    for (int i = 0; i < 12; ++i) {
-        QPoint pts[3] = {
-            QPoint(i * colWidth, h),
-            QPoint((i + 1) * colWidth, h),
-            QPoint(i * colWidth + colWidth / 2, midY + 10)
-        };
-        QColor c = (i % 2 == 0) ? QColor(80, 50, 30) : QColor(200, 180, 120);
-        p.setBrush(c);
-        p.setPen(Qt::NoPen);
-        p.drawPolygon(pts, 3);
+    int rightStartX = barX + barWidth;
+    triangleWidth = rightSideWidth / 6;  
+
+    for (int i = 0; i < 6; i++) {
+        drawTriangle(p, rightStartX + i * triangleWidth, 0, triangleWidth, triangleHeight, false, 6 + i);
+
+        drawTriangle(p, rightStartX + i * triangleWidth, h, triangleWidth, triangleHeight, true, 12 + i);
     }
+
+}
+void BoardWidget::drawTriangle(QPainter& p, int x, int y, int width, int height, bool pointUp, int pointIndex) {
+    QPolygon triangle;
+
+    if (pointUp) {
+        triangle << QPoint(x, y)
+            << QPoint(x + width, y)
+            << QPoint(x + width / 2, y - height);
+    }
+    else {
+        triangle << QPoint(x, y)
+            << QPoint(x + width, y)
+            << QPoint(x + width / 2, y + height);
+    }
+
+    // Alternate colors
+    QColor color = (pointIndex % 2 == 0) ? QColor(100, 50, 20) : QColor(220, 180, 140);
+    p.setBrush(color);
+    p.setPen(QPen(Qt::black, 1));
+    p.drawPolygon(triangle);
 }
 
-void BoardWidget::drawPieces(QPainter& p)
-{
-    const int w = width();
-    const int h = height();
-    const int midY = h / 2;
-    const int colWidth = w / 12;
-    const int pieceRadius = std::min(colWidth, h / 12) / 2 - 2;
+void BoardWidget::drawPieces(QPainter& painter) {
+    int boardWidth = width();
+    int boardHeight = height();
+    int barWidth = 40;
+    int barX = boardWidth / 2 - barWidth / 2;
 
-    // indexe 0..11 => sus, 12..23 => jos
-    for (int idx = 0; idx < 24; ++idx) {
-        int count = m_state.pieceCounts[idx];
-        Color col = m_state.colors[idx];
-        if (count <= 0 || col == NONE) continue;
+    int leftSideWidth = barX;
+    int triangleWidth = leftSideWidth / 6;
+    int pieceRadius = triangleWidth / 2 - 15;  // Piece slightly smaller than triangle width
 
-        bool top = (idx < 12);
-        int colIndex = idx % 12;
 
-        int xCenter = colIndex * colWidth + colWidth / 2;
+    GameStateDTO state = m_game->getState();
 
-        for (int i = 0; i < count && i < 5; ++i) { // max 5 desenate, restul pot fi "număr"
-            int yCenter;
-            if (top) {
-                yCenter = 10 + pieceRadius + i * (pieceRadius * 2 + 2);
+    for (int pointIndex = 0; pointIndex < 24; pointIndex++) {
+        int pieceCount = state.pieceCounts[pointIndex];
+        Color color = state.colors[pointIndex];
+
+        if (pieceCount > 0 && color != NONE) {
+            int x, y;
+            bool isTopRow;
+
+            if (pointIndex >= 0 && pointIndex <= 5) {
+                x = pointIndex * triangleWidth + triangleWidth / 2;
+                y = pieceRadius + 10;  
+                isTopRow = true;
             }
-            else {
-                yCenter = h - 10 - pieceRadius - i * (pieceRadius * 2 + 2);
+            else if (pointIndex >= 6 && pointIndex <= 11) {
+                x = barX + barWidth + (pointIndex - 6) * triangleWidth + triangleWidth / 2;
+                y = pieceRadius + 10;
+                isTopRow = true;
+            }
+            else if (pointIndex >= 12 && pointIndex <= 17) {
+                x = barX + barWidth + (pointIndex - 12) * triangleWidth + triangleWidth / 2;
+                y = boardHeight - pieceRadius - 10;
+                isTopRow = false;
+            }
+            else {  
+                x = (pointIndex - 18) * triangleWidth + triangleWidth / 2;
+                y = boardHeight - pieceRadius - 10;
+                isTopRow = false;
             }
 
-            QColor qc = (col == WHITE) ? QColor(240, 240, 240) : QColor(20, 20, 20);
-            p.setBrush(qc);
-            p.setPen(QPen(Qt::black, 1));
-            p.drawEllipse(QPoint(xCenter, yCenter), pieceRadius, pieceRadius);
+            drawPiecesAtPoint(painter, x, y, pieceCount, color, pieceRadius, isTopRow);
         }
+    }
 
-        // dacă sunt mai mult de 5, scriem numărul
-        if (count > 5) {
-            int textY = top ? (10 + pieceRadius) : (h - 10 - pieceRadius);
-            p.setPen(Qt::yellow);
-            p.drawText(xCenter - 8, textY, QString::number(count));
+    drawBarPieces(painter, state);
+}
+
+void BoardWidget::drawPiecesAtPoint(QPainter& painter, int centerX, int centerY,
+    int count, Color color, int radius, bool isTopRow) {
+    // Set piece color
+    QColor pieceColor = (color == WHITE) ? QColor(255, 255, 255) : QColor(0, 0, 0);
+    QColor borderColor = (color == WHITE) ? QColor(200, 200, 200) : QColor(50, 50, 50);
+
+    painter.setBrush(pieceColor);
+    painter.setPen(QPen(borderColor, 2));
+
+
+    int spacing = radius * 2 + 2;  
+    int maxVisiblePieces = 5;  // Show max 5 pieces, then show count
+
+    for (int i = 0; i < std::min(count, maxVisiblePieces); i++) {
+        int yOffset = isTopRow ? (i * spacing) : -(i * spacing);
+        int pieceY = centerY + yOffset;
+
+        painter.drawEllipse(QPoint(centerX, pieceY), radius, radius);
+    }
+
+    // If more than maxVisiblePieces, draw count on top piece
+    if (count > maxVisiblePieces) {
+        int yOffset = isTopRow ? ((maxVisiblePieces - 1) * spacing) : -((maxVisiblePieces - 1) * spacing);
+        int textY = centerY + yOffset;
+
+        painter.setPen(QPen(color == WHITE ? Qt::black : Qt::white));
+        painter.setFont(QFont("Arial", 10, QFont::Bold));
+        painter.drawText(QRect(centerX - radius, textY - radius, radius * 2, radius * 2),
+            Qt::AlignCenter, QString::number(count));
+    }
+}
+void BoardWidget::drawBarPieces(QPainter& painter, const GameStateDTO& state) {
+    int boardWidth = width();
+    int boardHeight = height();
+    int barWidth = 40;
+    int barX = boardWidth / 2 - barWidth / 2;
+    int pieceRadius = 15;
+
+    int centerX = barX + barWidth / 2;
+
+    // Draw white pieces on bar
+    if (state.barWhite > 0) {
+        int startY = boardHeight / 4;
+        for (int i = 0; i < state.barWhite; i++) {
+            painter.setBrush(Qt::white);
+            painter.setPen(QPen(QColor(200, 200, 200), 2));
+            painter.drawEllipse(QPoint(centerX, startY + i * (pieceRadius * 2 + 2)),
+                pieceRadius, pieceRadius);
+        }
+    }
+
+    // Draw black pieces on bar
+    if (state.barBlack > 0) {
+        int startY = boardHeight * 3 / 4;
+        for (int i = 0; i < state.barBlack; i++) {
+            painter.setBrush(Qt::black);
+            painter.setPen(QPen(QColor(50, 50, 50), 2));
+            painter.drawEllipse(QPoint(centerX, startY + i * (pieceRadius * 2 + 2)),
+                pieceRadius, pieceRadius);
         }
     }
 }

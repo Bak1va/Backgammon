@@ -30,11 +30,12 @@ private:
 
     int m_selectedPoint;            // punctul sursă selectat, -1 dacă niciunul
     std::vector<int> m_legalTargets; // destinații posibile pt. punctul selectat
-
     void refreshState();
     void clearSelection();
     void selectPoint(int index);
-
+    void drawTriangle(QPainter& painter, int x, int y, int width, int height, bool pointUp, int pointIndex);
+    void drawPiecesAtPoint(QPainter& painter, int centerX, int centerY,int count, Color color, int radius, bool isTopRow);
+    void drawBarPieces(QPainter& painter, const GameStateDTO& state);
     int pointIndexFromPosition(const QPoint& pos) const;
     void drawBoard(QPainter& p);
     void drawPieces(QPainter& p);
