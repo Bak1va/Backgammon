@@ -1,11 +1,13 @@
 ﻿#include "BoardWidget.h"
+#include "BackgammonUI.h"
 #include <QPainter>
 #include <QMouseEvent>
 #include <algorithm>
 
-BoardWidget::BoardWidget(QWidget* parent, IGame* game)
+BoardWidget::BoardWidget(QWidget* parent, IGame* game, BackgammonUI* mainWindow)
     : QWidget(parent),
     m_game(game),
+    m_mainWindow(mainWindow),
     m_selectedPoint(-1)
 {
     setMinimumSize(900, 500);
@@ -20,7 +22,7 @@ void BoardWidget::refreshState()
     if (m_game) {
         m_state = m_game->getState();
     }
-    update(); // redraw
+    update(); 
 }
 
 void BoardWidget::clearSelection()
@@ -39,7 +41,6 @@ void BoardWidget::selectPoint(int index)
     update();
 }
 
-/* ==== IGameObserver callbacks ==== */
 
 void BoardWidget::onGameStarted()
 {
@@ -54,8 +55,11 @@ void BoardWidget::onDiceRolled(Color, int, int)
 
 void BoardWidget::onMoveMade(Color, int, int, MoveResult)
 {
-    // Indiferent dacă e success sau nu, re-citim starea
     refreshState();
+    
+    if (m_mainWindow) {
+        m_mainWindow->updateUI();
+    }
 }
 
 void BoardWidget::onTurnChanged(Color)
@@ -70,15 +74,13 @@ void BoardWidget::onGameFinished(Color)
     refreshState();
 }
 
-/* ==== Painting ==== */
 
 void BoardWidget::paintEvent(QPaintEvent*)
 {
     QPainter p(this);
     p.setRenderHint(QPainter::Antialiasing, true);
 
-    // fundal
-    p.fillRect(rect(), QColor(30, 90, 50)); // verde inchis
+    p.fillRect(rect(), QColor(30, 90, 50)); 
 
     drawBoard(p);
     drawPieces(p);
@@ -103,7 +105,7 @@ void BoardWidget::drawBoard(QPainter& p)
     barGradient.setColorAt(0.5, QColor(139, 69, 19));    
     barGradient.setColorAt(1, QColor(101, 67, 33));      
     p.fillRect(barRect, barGradient);
-    // Draw left side triangles 
+
     for (int i = 0; i < 6; i++) {
 
         drawTriangle(p, i * triangleWidth, 0, triangleWidth, triangleHeight, false, i);
@@ -135,7 +137,6 @@ void BoardWidget::drawTriangle(QPainter& p, int x, int y, int width, int height,
             << QPoint(x + width / 2, y + height);
     }
 
-    // Alternate colors
     QColor color = (pointIndex % 2 == 0) ? QColor(100, 50, 20) : QColor(220, 180, 140);
     p.setBrush(color);
     p.setPen(QPen(Qt::black, 1));
@@ -150,7 +151,7 @@ void BoardWidget::drawPieces(QPainter& painter) {
 
     int leftSideWidth = barX;
     int triangleWidth = leftSideWidth / 6;
-    int pieceRadius = triangleWidth / 2 - 15;  // Piece slightly smaller than triangle width
+    int pieceRadius = triangleWidth / 2 - 15;  
 
 
     GameStateDTO state = m_game->getState();
@@ -193,7 +194,7 @@ void BoardWidget::drawPieces(QPainter& painter) {
 
 void BoardWidget::drawPiecesAtPoint(QPainter& painter, int centerX, int centerY,
     int count, Color color, int radius, bool isTopRow) {
-    // Set piece color
+
     QColor pieceColor = (color == WHITE) ? QColor(255, 255, 255) : QColor(0, 0, 0);
     QColor borderColor = (color == WHITE) ? QColor(200, 200, 200) : QColor(50, 50, 50);
 
@@ -231,7 +232,6 @@ void BoardWidget::drawBarPieces(QPainter& painter, const GameStateDTO& state) {
 
     int centerX = barX + barWidth / 2;
 
-    // Draw white pieces on bar
     if (state.barWhite > 0) {
         int startY = boardHeight / 4;
         for (int i = 0; i < state.barWhite; i++) {
@@ -242,7 +242,6 @@ void BoardWidget::drawBarPieces(QPainter& painter, const GameStateDTO& state) {
         }
     }
 
-    // Draw black pieces on bar
     if (state.barBlack > 0) {
         int startY = boardHeight * 3 / 4;
         for (int i = 0; i < state.barBlack; i++) {
@@ -260,45 +259,84 @@ void BoardWidget::drawHighlights(QPainter& p)
 
     const int w = width();
     const int h = height();
-    const int colWidth = w / 12;
+    const int barWidth = 40;
+    const int barX = w / 2 - barWidth / 2;
+    
+    const int leftSideWidth = barX;
+    const int rightSideWidth = w - (barX + barWidth);
+    const int leftTriangleWidth = leftSideWidth / 6;
+    const int rightTriangleWidth = rightSideWidth / 6;
 
-    // highlight pentru punctul selectat
-    int from = m_selectedPoint;
-    bool top = (from < 12);
-    int colIndex = from % 12;
-    QRect fromRect(colIndex * colWidth, top ? 0 : h / 2,
-        colWidth, h / 2);
-    p.setBrush(QColor(255, 255, 0, 60));
+    auto getPointRect = [&](int pointIndex) -> QRect {
+        bool top = (pointIndex < 12);
+        int x, triangleWidth;
+        
+        if (pointIndex >= 0 && pointIndex <= 5) {
+            x = pointIndex * leftTriangleWidth;
+            triangleWidth = leftTriangleWidth;
+        }
+        else if (pointIndex >= 6 && pointIndex <= 11) {
+            x = barX + barWidth + (pointIndex - 6) * rightTriangleWidth;
+            triangleWidth = rightTriangleWidth;
+        }
+        else if (pointIndex >= 12 && pointIndex <= 17) {
+            x = barX + barWidth + (pointIndex - 12) * rightTriangleWidth;
+            triangleWidth = rightTriangleWidth;
+        }
+        else { 
+            x = (pointIndex - 18) * leftTriangleWidth;
+            triangleWidth = leftTriangleWidth;
+        }
+        
+        return QRect(x, top ? 0 : h / 2, triangleWidth, h / 2);
+    };
+
+    QRect fromRect = getPointRect(m_selectedPoint);
+    p.setBrush(QColor(255, 255, 0, 80));
     p.setPen(Qt::NoPen);
     p.drawRect(fromRect);
 
-    // highlight pentru ținte
-    p.setBrush(QColor(0, 255, 0, 60));
-    for (int t : m_legalTargets) {
-        bool tTop = (t < 12);
-        int tCol = t % 12;
-        QRect r(tCol * colWidth, tTop ? 0 : h / 2,
-            colWidth, h / 2);
-        p.drawRect(r);
+    p.setBrush(QColor(0, 255, 0, 80));
+    for (int targetPoint : m_legalTargets) {
+        QRect targetRect = getPointRect(targetPoint);
+        p.drawRect(targetRect);
     }
 }
 
-/* ==== Input: click pentru selectare si mutare ==== */
 
 int BoardWidget::pointIndexFromPosition(const QPoint& pos) const
 {
     const int w = width();
     const int h = height();
-    const int colWidth = w / 12;
+    const int barWidth = 40;
+    const int barX = w / 2 - barWidth / 2;
+    
+    const int leftSideWidth = barX;
+    const int rightSideWidth = w - (barX + barWidth);
+    const int leftTriangleWidth = leftSideWidth / 6;
+    const int rightTriangleWidth = rightSideWidth / 6;
 
-    int col = pos.x() / colWidth;
-    if (col < 0 || col >= 12) return -1;
+    if (pos.x() >= barX && pos.x() <= barX + barWidth) {
+        return -1;
+    }
 
     bool top = (pos.y() < h / 2);
-    int index = top ? col : (12 + col);
+    int pointIndex = -1;
 
-    if (index < 0 || index >= 24) return -1;
-    return index;
+    if (pos.x() < barX) {
+        int col = pos.x() / leftTriangleWidth;
+        if (col >= 0 && col < 6) {
+            pointIndex = top ? col : (18 + col);
+        }
+    }
+    else if (pos.x() > barX + barWidth) {
+        int col = (pos.x() - (barX + barWidth)) / rightTriangleWidth;
+        if (col >= 0 && col < 6) {
+            pointIndex = top ? (6 + col) : (12 + col);
+        }
+    }
+
+    return pointIndex;
 }
 
 void BoardWidget::mousePressEvent(QMouseEvent* event)
@@ -311,7 +349,6 @@ void BoardWidget::mousePressEvent(QMouseEvent* event)
         return;
     }
 
-    // Nimic selectat încă → încercăm să selectăm sursa
     if (m_selectedPoint == -1) {
         if (m_game->canSelectPoint(index)) {
             selectPoint(index);
@@ -322,28 +359,23 @@ void BoardWidget::mousePressEvent(QMouseEvent* event)
         return;
     }
 
-    // Dacă dai click pe aceeași coloană → deselectăm
     if (index == m_selectedPoint) {
         clearSelection();
         return;
     }
 
-    // Dacă index este o țintă legală → facem mutarea
     if (std::find(m_legalTargets.begin(), m_legalTargets.end(), index) != m_legalTargets.end()) {
         MoveResult result = m_game->makeMove(m_selectedPoint, index);
 
         if (result == MoveResult::Success) {
             clearSelection();
-            // onMoveMade / onTurnChanged vor face refreshState prin observer
         }
         else {
-            // mutare invalidă: reîmprospătăm ca să reflectăm starea corectă
             refreshState();
         }
         return;
     }
 
-    // Altfel: încercăm să schimbăm selecția pe un alt punct valid
     if (m_game->canSelectPoint(index)) {
         selectPoint(index);
     }

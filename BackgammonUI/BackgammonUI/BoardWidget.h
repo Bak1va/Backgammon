@@ -6,12 +6,14 @@
 #include "IGame.h"
 #include "GameStateDTO.h"
 
+class BackgammonUI;
+
 class BoardWidget : public QWidget, public IGameObserver
 {
     Q_OBJECT
 
 public:
-    explicit BoardWidget(QWidget* parent, IGame* game);
+    explicit BoardWidget(QWidget* parent, IGame* game, BackgammonUI* mainWindow = nullptr);
 
     // Observer callbacks
     void onGameStarted() override;
@@ -26,6 +28,7 @@ protected:
 
 private:
     IGame* m_game;          // nu deținem, doar folosim
+    BackgammonUI* m_mainWindow; // pointer to main window for UI updates
     GameStateDTO m_state;   // snapshot pentru desenare
 
     int m_selectedPoint;            // punctul sursă selectat, -1 dacă niciunul

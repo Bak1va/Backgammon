@@ -1,11 +1,12 @@
 ﻿#pragma once
 
 #include <QMainWindow>
-#include "ui_BackgammonUI.h"
-#include "Game.h"
+#include "IGame.h"
 #include <memory>
 
 class BoardWidget;
+class QPushButton;
+class QLabel;
 
 class BackgammonUI : public QMainWindow
 {
@@ -14,12 +15,21 @@ class BackgammonUI : public QMainWindow
 public:
     BackgammonUI(QWidget *parent = nullptr);
     ~BackgammonUI();
+    
+    void updateUI();  
 
 private:
-    std::unique_ptr<Game> m_game;  // logica jocului
-    BoardWidget* m_boardWidget;    // widgetul care afișează tabla
+    std::unique_ptr<IGame> m_game;  
+    BoardWidget* m_boardWidget;     
+    
+    // UI controls
+    QPushButton* m_rollButton;
+    QLabel* m_diceLabel;
+    QLabel* m_playerLabel;
+    QLabel* m_statusLabel;
 
     void setupUi();
     void setupMenu();
+    void onRollDice();
 };
 
