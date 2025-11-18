@@ -5,13 +5,16 @@
 #include <QMouseEvent>
 #include <algorithm>
 
+// Constante pentru UI
+const int BEAR_OFF_WIDTH = 60; // Latimea zonei din dreapta unde scoatem piese
+
 BoardWidget::BoardWidget(QWidget* parent, IGame* game, BackgammonUI* mainWindow)
     : QWidget(parent),
     m_game(game),
     m_mainWindow(mainWindow),
     m_selectedPoint(-1)
 {
-    setMinimumSize(900, 500);
+    setMinimumSize(960, 500); // Putin mai lat pentru a acomoda zona de bear-off
     if (m_game) {
         m_state = m_game->getState();
     }
@@ -49,22 +52,25 @@ void BoardWidget::onGameFinished(Color) { clearSelection(); refreshState(); }
 void BoardWidget::paintEvent(QPaintEvent*) {
     QPainter p(this);
     p.setRenderHint(QPainter::Antialiasing, true);
-    p.fillRect(rect(), QColor(30, 90, 50));
+    p.fillRect(rect(), QColor(30, 90, 50)); // Fundal verde inchis
+
     drawBoard(p);
     drawPieces(p);
     drawHighlights(p);
 }
 
 void BoardWidget::drawBoard(QPainter& p) {
-    const int w = width();
+    const int w = width() - BEAR_OFF_WIDTH; // Rezervam spatiu in dreapta
     const int h = height();
     int barWidth = 40;
     int barX = w / 2 - barWidth / 2;
+
     int leftSideWidth = barX;
     int rightSideWidth = w - (barX + barWidth);
     int triangleWidth = leftSideWidth / 6;
     int triangleHeight = h / 2 - 20;
 
+    // Desenare Bara Centrala
     QRect barRect(barX, 0, barWidth, h);
     QLinearGradient barGradient(barX, 0, barX + barWidth, 0);
     barGradient.setColorAt(0, QColor(101, 67, 33));
@@ -72,17 +78,29 @@ void BoardWidget::drawBoard(QPainter& p) {
     barGradient.setColorAt(1, QColor(101, 67, 33));
     p.fillRect(barRect, barGradient);
 
+    // Triunghiuri Stanga
     for (int i = 0; i < 6; i++) {
         drawTriangle(p, i * triangleWidth, 0, triangleWidth, triangleHeight, false, i);
         drawTriangle(p, i * triangleWidth, h, triangleWidth, triangleHeight, true, 18 + i);
     }
 
+    // Triunghiuri Dreapta
     int rightStartX = barX + barWidth;
     triangleWidth = rightSideWidth / 6;
     for (int i = 0; i < 6; i++) {
         drawTriangle(p, rightStartX + i * triangleWidth, 0, triangleWidth, triangleHeight, false, 6 + i);
         drawTriangle(p, rightStartX + i * triangleWidth, h, triangleWidth, triangleHeight, true, 12 + i);
     }
+
+    // --- DESENARE ZONA BEAR OFF (Dreapta) ---
+    QRect bearOffRect(w, 0, BEAR_OFF_WIDTH, h);
+    p.fillRect(bearOffRect, QColor(60, 30, 10)); // Maro inchis
+    p.setPen(QPen(QColor(100, 70, 30), 2));
+    p.drawRect(bearOffRect);
+
+    // Linie despartitoare
+    p.setPen(QPen(Qt::black, 2));
+    p.drawLine(w, 0, w, h);
 }
 
 void BoardWidget::drawTriangle(QPainter& p, int x, int y, int width, int height, bool pointUp, int pointIndex) {
@@ -100,16 +118,18 @@ void BoardWidget::drawTriangle(QPainter& p, int x, int y, int width, int height,
 }
 
 void BoardWidget::drawPieces(QPainter& painter) {
-    int boardWidth = width();
+    int boardWidth = width() - BEAR_OFF_WIDTH;
     int boardHeight = height();
     int barWidth = 40;
     int barX = boardWidth / 2 - barWidth / 2;
     int leftSideWidth = barX;
     int triangleWidth = leftSideWidth / 6;
-    int pieceRadius = triangleWidth / 2 - 15;
+    int pieceRadius = triangleWidth / 2 - 5;
+    if (pieceRadius > 22) pieceRadius = 22; // Limitare marime
 
     const GameStateDTO& state = m_state;
 
+    // 1. Desenare piese pe tabla (0-23)
     for (int pointIndex = 0; pointIndex < 24; pointIndex++) {
         int pieceCount = state.pieceCounts[pointIndex];
         Color color = state.colors[pointIndex];
@@ -141,7 +161,21 @@ void BoardWidget::drawPieces(QPainter& painter) {
             drawPiecesAtPoint(painter, x, y, pieceCount, color, pieceRadius, isTopRow);
         }
     }
+
+    // 2. Desenare piese pe BARA (Middle Bar)
     drawBarPieces(painter, state);
+
+    // 3. Desenare piese SCOASE (Bear Off - Zona dreapta)
+    int bearOffX = boardWidth + BEAR_OFF_WIDTH / 2;
+
+    // Piese Albe scoase (sus in dreapta, arbitrar)
+    if (state.borneOffWhite > 0) {
+        drawPiecesAtPoint(painter, bearOffX, pieceRadius + 10, state.borneOffWhite, WHITE, 12, true);
+    }
+    // Piese Negre scoase (jos in dreapta)
+    if (state.borneOffBlack > 0) {
+        drawPiecesAtPoint(painter, bearOffX, boardHeight - pieceRadius - 10, state.borneOffBlack, BLACK, 12, false);
+    }
 }
 
 void BoardWidget::drawPiecesAtPoint(QPainter& painter, int centerX, int centerY,
@@ -151,61 +185,55 @@ void BoardWidget::drawPiecesAtPoint(QPainter& painter, int centerX, int centerY,
     painter.setBrush(pieceColor);
     painter.setPen(QPen(borderColor, 2));
 
-    int spacing = radius * 2 + 3;
-    int maxVisiblePieces = 5;
+    int spacing = radius * 2 + 2;
+    // Comprimare daca sunt multe piese
+    if (count > 5) spacing = (radius * 2 * 5) / count;
 
-    for (int i = 0; i < std::min(count, maxVisiblePieces); i++) {
+    int maxVisible = 15; // Desenam fizic maxim 15
+
+    for (int i = 0; i < std::min(count, maxVisible); i++) {
         int yOffset = isTopRow ? (i * spacing) : -(i * spacing);
         int pieceY = centerY + yOffset;
         painter.drawEllipse(QPoint(centerX, pieceY), radius, radius);
     }
-    if (count > maxVisiblePieces) {
-        int yOffset = isTopRow ? ((maxVisiblePieces - 1) * spacing) : -((maxVisiblePieces - 1) * spacing);
-        int textY = centerY + yOffset;
-        painter.setPen(QPen(color == WHITE ? Qt::black : Qt::white));
-        painter.setFont(QFont("Arial", 10, QFont::Bold));
-        painter.drawText(QRect(centerX - radius, textY - radius, radius * 2, radius * 2),
-            Qt::AlignCenter, QString::number(count));
-    }
 }
 
 void BoardWidget::drawBarPieces(QPainter& painter, const GameStateDTO& state) {
-    int boardWidth = width();
+    int boardWidth = width() - BEAR_OFF_WIDTH;
     int boardHeight = height();
     int barWidth = 40;
     int barX = boardWidth / 2 - barWidth / 2;
-    int pieceRadius = 15;
+    int pieceRadius = 18;
     int centerX = barX + barWidth / 2;
 
     if (state.barWhite > 0) {
-        int startY = boardHeight / 4;
+        int startY = boardHeight / 2 - 50;
         for (int i = 0; i < state.barWhite; i++) {
             painter.setBrush(Qt::white);
             painter.setPen(QPen(QColor(200, 200, 200), 2));
-            painter.drawEllipse(QPoint(centerX, startY + i * (pieceRadius * 2 + 2)), pieceRadius, pieceRadius);
+            painter.drawEllipse(QPoint(centerX, startY - i * 20), pieceRadius, pieceRadius);
         }
     }
     if (state.barBlack > 0) {
-        int startY = boardHeight * 3 / 4;
+        int startY = boardHeight / 2 + 50;
         for (int i = 0; i < state.barBlack; i++) {
             painter.setBrush(Qt::black);
             painter.setPen(QPen(QColor(50, 50, 50), 2));
-            painter.drawEllipse(QPoint(centerX, startY + i * (pieceRadius * 2 + 2)), pieceRadius, pieceRadius);
+            painter.drawEllipse(QPoint(centerX, startY + i * 20), pieceRadius, pieceRadius);
         }
     }
 }
 
 void BoardWidget::drawHighlights(QPainter& p) {
-    // Highlight selected source
     auto getPointRect = [&](int pointIndex) -> QRect {
-        // Special handling for BAR selection
+        // Special: BARA
         if (pointIndex == Game::BAR_INDEX) {
             int barW = 40;
-            int barX = width() / 2 - barW / 2;
+            int barX = (width() - BEAR_OFF_WIDTH) / 2 - barW / 2;
             return QRect(barX, 0, barW, height());
         }
 
-        const int w = width();
+        const int w = width() - BEAR_OFF_WIDTH;
         const int h = height();
         const int barWidth = 40;
         const int barX = w / 2 - barWidth / 2;
@@ -235,30 +263,46 @@ void BoardWidget::drawHighlights(QPainter& p) {
         };
 
     if (m_selectedPoint != -1) {
-        p.setBrush(QColor(255, 255, 0, 80));
+        // Highlight Sursa
+        p.setBrush(QColor(255, 255, 0, 80)); // Galben transparent
         p.setPen(Qt::NoPen);
         p.drawRect(getPointRect(m_selectedPoint));
 
-        p.setBrush(QColor(0, 255, 0, 80));
+        // Highlight Tinte
+        p.setBrush(QColor(0, 255, 0, 80)); // Verde transparent
         for (int targetPoint : m_legalTargets) {
-            // Daca e bearing off (index afara din tabla), nu desenam highlight sau il desenam undeva generic
-            if (targetPoint < 0 || targetPoint >= 24) continue;
-            p.drawRect(getPointRect(targetPoint));
+            // VERIFICARE BEARING OFF (Scoate piesa)
+            if (targetPoint == 24 || targetPoint == -1) {
+                // Desenam highlight pe zona din dreapta
+                QRect bearOffZone(width() - BEAR_OFF_WIDTH, 0, BEAR_OFF_WIDTH, height());
+                p.drawRect(bearOffZone);
+            }
+            else {
+                // Miscare normala
+                p.drawRect(getPointRect(targetPoint));
+            }
         }
     }
 }
 
 int BoardWidget::pointIndexFromPosition(const QPoint& pos) const {
-    const int w = width();
+    const int w = width() - BEAR_OFF_WIDTH; // excludem bear off din calculul triunghiurilor
     const int h = height();
     const int barWidth = 40;
     const int barX = w / 2 - barWidth / 2;
     const int leftTriangleWidth = barX / 6;
     const int rightTriangleWidth = (w - (barX + barWidth)) / 6;
 
+    // 0. Check BEAR OFF Zone click
+    if (pos.x() > w) {
+        // Daca jucatorul curent este WHITE, zona de scoatere este index 24
+        if (m_state.currentPlayer == WHITE) return 24;
+        // Daca este BLACK, zona de scoatere este index -1
+        if (m_state.currentPlayer == BLACK) return -1;
+    }
+
     // 1. Check BAR click
     if (pos.x() >= barX && pos.x() <= barX + barWidth) {
-        // Daca jucatorul curent are piese pe bara, returnam indexul special
         if (m_state.currentPlayer == WHITE && m_state.barWhite > 0) return Game::BAR_INDEX;
         if (m_state.currentPlayer == BLACK && m_state.barBlack > 0) return Game::BAR_INDEX;
         return -1;
@@ -273,7 +317,7 @@ int BoardWidget::pointIndexFromPosition(const QPoint& pos) const {
             pointIndex = top ? col : (18 + col);
         }
     }
-    else if (pos.x() > barX + barWidth) {
+    else if (pos.x() > barX + barWidth && pos.x() < w) { // pana in bear off zone
         int col = (pos.x() - (barX + barWidth)) / rightTriangleWidth;
         if (col >= 0 && col < 6) {
             pointIndex = top ? (6 + col) : (12 + col);
@@ -287,27 +331,17 @@ void BoardWidget::mousePressEvent(QMouseEvent* event) {
 
     int index = pointIndexFromPosition(event->pos());
 
-    // Daca s-a dat click in afara zonelor valide si nu avem nimic selectat
-    if (index == -1) {
-        // Verifica daca userul a dat click "afara" pentru Bearing Off (cand o piesa e selectata)
-        if (m_selectedPoint != -1 && !m_legalTargets.empty()) {
-            // Simplificare: orice click invalid e considerat bearing off daca exista o mutare valida bear-off
-            // Cautam in tinte o valoare > 23 (White) sau < 0 (Black)
-            for (int t : m_legalTargets) {
-                if (t > 23 || t < 0) {
-                    MoveResult result = m_game->makeMove(m_selectedPoint, t);
-                    if (result == MoveResult::Success) clearSelection();
-                    else refreshState();
-                    return;
-                }
-            }
-        }
+    // Daca nu e o zona valida si nu e bear-off
+    if (index == -1 && (event->pos().x() <= width() - BEAR_OFF_WIDTH)) {
         clearSelection();
         return;
     }
 
-    // Logica standard de selectie
+    // Selectie Noua
     if (m_selectedPoint == -1) {
+        // Nu poti selecta zona de bear off ca sursa
+        if (index == 24 || index == -1) return;
+
         if (m_game->canSelectPoint(index)) {
             selectPoint(index);
         }
@@ -317,12 +351,13 @@ void BoardWidget::mousePressEvent(QMouseEvent* event) {
         return;
     }
 
+    // Deselectare
     if (index == m_selectedPoint) {
         clearSelection();
         return;
     }
 
-    // Attempt move
+    // Executare Miscare (inclusiv Bear Off daca index este 24 sau -1)
     if (std::find(m_legalTargets.begin(), m_legalTargets.end(), index) != m_legalTargets.end()) {
         MoveResult result = m_game->makeMove(m_selectedPoint, index);
         if (result == MoveResult::Success) {
@@ -334,7 +369,7 @@ void BoardWidget::mousePressEvent(QMouseEvent* event) {
         return;
     }
 
-    // Change selection
+    // Schimbare selectie (daca dau click pe alta piesa a mea)
     if (m_game->canSelectPoint(index)) {
         selectPoint(index);
     }
