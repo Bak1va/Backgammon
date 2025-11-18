@@ -1,5 +1,6 @@
 ﻿#include "BoardWidget.h"
 #include "BackgammonUI.h"
+#include "Game.h" // pt Game::BAR_INDEX
 #include <QPainter>
 #include <QMouseEvent>
 #include <algorithm>
@@ -11,132 +12,87 @@ BoardWidget::BoardWidget(QWidget* parent, IGame* game, BackgammonUI* mainWindow)
     m_selectedPoint(-1)
 {
     setMinimumSize(900, 500);
-
     if (m_game) {
         m_state = m_game->getState();
     }
 }
 
-void BoardWidget::refreshState()
-{
+void BoardWidget::refreshState() {
     if (m_game) {
         m_state = m_game->getState();
     }
-    update(); 
+    update();
 }
 
-void BoardWidget::clearSelection()
-{
+void BoardWidget::clearSelection() {
     m_selectedPoint = -1;
     m_legalTargets.clear();
     update();
 }
 
-void BoardWidget::selectPoint(int index)
-{
+void BoardWidget::selectPoint(int index) {
     if (!m_game) return;
-
     m_selectedPoint = index;
     m_legalTargets = m_game->getLegalTargets(index);
     update();
 }
 
-
-void BoardWidget::onGameStarted()
-{
-    clearSelection();
+void BoardWidget::onGameStarted() { clearSelection(); refreshState(); }
+void BoardWidget::onDiceRolled(Color, int, int) { refreshState(); }
+void BoardWidget::onMoveMade(Color, int, int, MoveResult) {
     refreshState();
+    if (m_mainWindow) m_mainWindow->updateUI();
 }
+void BoardWidget::onTurnChanged(Color) { clearSelection(); refreshState(); }
+void BoardWidget::onGameFinished(Color) { clearSelection(); refreshState(); }
 
-void BoardWidget::onDiceRolled(Color, int, int)
-{
-    refreshState();
-}
-
-void BoardWidget::onMoveMade(Color, int, int, MoveResult)
-{
-    refreshState();
-    
-    if (m_mainWindow) {
-        m_mainWindow->updateUI();
-    }
-}
-
-void BoardWidget::onTurnChanged(Color)
-{
-    clearSelection();
-    refreshState();
-}
-
-void BoardWidget::onGameFinished(Color)
-{
-    clearSelection();
-    refreshState();
-}
-
-
-void BoardWidget::paintEvent(QPaintEvent*)
-{
+void BoardWidget::paintEvent(QPaintEvent*) {
     QPainter p(this);
     p.setRenderHint(QPainter::Antialiasing, true);
-
-    p.fillRect(rect(), QColor(30, 90, 50)); 
-
+    p.fillRect(rect(), QColor(30, 90, 50));
     drawBoard(p);
     drawPieces(p);
     drawHighlights(p);
 }
 
-void BoardWidget::drawBoard(QPainter& p)
-{
+void BoardWidget::drawBoard(QPainter& p) {
     const int w = width();
     const int h = height();
-	int barWidth = 40;
-    int barX = w/ 2 - barWidth / 2;
+    int barWidth = 40;
+    int barX = w / 2 - barWidth / 2;
     int leftSideWidth = barX;
     int rightSideWidth = w - (barX + barWidth);
     int triangleWidth = leftSideWidth / 6;
     int triangleHeight = h / 2 - 20;
 
-
     QRect barRect(barX, 0, barWidth, h);
     QLinearGradient barGradient(barX, 0, barX + barWidth, 0);
-    barGradient.setColorAt(0, QColor(101, 67, 33));      
-    barGradient.setColorAt(0.5, QColor(139, 69, 19));    
-    barGradient.setColorAt(1, QColor(101, 67, 33));      
+    barGradient.setColorAt(0, QColor(101, 67, 33));
+    barGradient.setColorAt(0.5, QColor(139, 69, 19));
+    barGradient.setColorAt(1, QColor(101, 67, 33));
     p.fillRect(barRect, barGradient);
 
     for (int i = 0; i < 6; i++) {
-
         drawTriangle(p, i * triangleWidth, 0, triangleWidth, triangleHeight, false, i);
-
         drawTriangle(p, i * triangleWidth, h, triangleWidth, triangleHeight, true, 18 + i);
     }
 
     int rightStartX = barX + barWidth;
-    triangleWidth = rightSideWidth / 6;  
-
+    triangleWidth = rightSideWidth / 6;
     for (int i = 0; i < 6; i++) {
         drawTriangle(p, rightStartX + i * triangleWidth, 0, triangleWidth, triangleHeight, false, 6 + i);
-
         drawTriangle(p, rightStartX + i * triangleWidth, h, triangleWidth, triangleHeight, true, 12 + i);
     }
-
 }
+
 void BoardWidget::drawTriangle(QPainter& p, int x, int y, int width, int height, bool pointUp, int pointIndex) {
     QPolygon triangle;
-
     if (pointUp) {
-        triangle << QPoint(x, y)
-            << QPoint(x + width, y)
-            << QPoint(x + width / 2, y - height);
+        triangle << QPoint(x, y) << QPoint(x + width, y) << QPoint(x + width / 2, y - height);
     }
     else {
-        triangle << QPoint(x, y)
-            << QPoint(x + width, y)
-            << QPoint(x + width / 2, y + height);
+        triangle << QPoint(x, y) << QPoint(x + width, y) << QPoint(x + width / 2, y + height);
     }
-
     QColor color = (pointIndex % 2 == 0) ? QColor(100, 50, 20) : QColor(220, 180, 140);
     p.setBrush(color);
     p.setPen(QPen(Qt::black, 1));
@@ -148,11 +104,9 @@ void BoardWidget::drawPieces(QPainter& painter) {
     int boardHeight = height();
     int barWidth = 40;
     int barX = boardWidth / 2 - barWidth / 2;
-
     int leftSideWidth = barX;
     int triangleWidth = leftSideWidth / 6;
-    int pieceRadius = triangleWidth / 2 - 15;  
-
+    int pieceRadius = triangleWidth / 2 - 15;
 
     const GameStateDTO& state = m_state;
 
@@ -166,7 +120,7 @@ void BoardWidget::drawPieces(QPainter& painter) {
 
             if (pointIndex >= 0 && pointIndex <= 5) {
                 x = pointIndex * triangleWidth + triangleWidth / 2;
-                y = pieceRadius + 5;  
+                y = pieceRadius + 5;
                 isTopRow = true;
             }
             else if (pointIndex >= 6 && pointIndex <= 11) {
@@ -179,57 +133,48 @@ void BoardWidget::drawPieces(QPainter& painter) {
                 y = boardHeight - pieceRadius - 5;
                 isTopRow = false;
             }
-            else {  
+            else {
                 x = (pointIndex - 18) * triangleWidth + triangleWidth / 2;
                 y = boardHeight - pieceRadius - 5;
                 isTopRow = false;
             }
-
             drawPiecesAtPoint(painter, x, y, pieceCount, color, pieceRadius, isTopRow);
         }
     }
-
     drawBarPieces(painter, state);
 }
 
 void BoardWidget::drawPiecesAtPoint(QPainter& painter, int centerX, int centerY,
     int count, Color color, int radius, bool isTopRow) {
-
     QColor pieceColor = (color == WHITE) ? QColor(255, 255, 255) : QColor(0, 0, 0);
     QColor borderColor = (color == WHITE) ? QColor(200, 200, 200) : QColor(50, 50, 50);
-
     painter.setBrush(pieceColor);
     painter.setPen(QPen(borderColor, 2));
 
-
-    int spacing = radius * 2 + 3;  
-    int maxVisiblePieces = 5;  // Show max 5 pieces, then show count
+    int spacing = radius * 2 + 3;
+    int maxVisiblePieces = 5;
 
     for (int i = 0; i < std::min(count, maxVisiblePieces); i++) {
         int yOffset = isTopRow ? (i * spacing) : -(i * spacing);
         int pieceY = centerY + yOffset;
-
         painter.drawEllipse(QPoint(centerX, pieceY), radius, radius);
     }
-
-    // If more than maxVisiblePieces, draw count on top piece
     if (count > maxVisiblePieces) {
         int yOffset = isTopRow ? ((maxVisiblePieces - 1) * spacing) : -((maxVisiblePieces - 1) * spacing);
         int textY = centerY + yOffset;
-
         painter.setPen(QPen(color == WHITE ? Qt::black : Qt::white));
         painter.setFont(QFont("Arial", 10, QFont::Bold));
         painter.drawText(QRect(centerX - radius, textY - radius, radius * 2, radius * 2),
             Qt::AlignCenter, QString::number(count));
     }
 }
+
 void BoardWidget::drawBarPieces(QPainter& painter, const GameStateDTO& state) {
     int boardWidth = width();
     int boardHeight = height();
     int barWidth = 40;
     int barX = boardWidth / 2 - barWidth / 2;
     int pieceRadius = 15;
-
     int centerX = barX + barWidth / 2;
 
     if (state.barWhite > 0) {
@@ -237,40 +182,39 @@ void BoardWidget::drawBarPieces(QPainter& painter, const GameStateDTO& state) {
         for (int i = 0; i < state.barWhite; i++) {
             painter.setBrush(Qt::white);
             painter.setPen(QPen(QColor(200, 200, 200), 2));
-            painter.drawEllipse(QPoint(centerX, startY + i * (pieceRadius * 2 + 2)),
-                pieceRadius, pieceRadius);
+            painter.drawEllipse(QPoint(centerX, startY + i * (pieceRadius * 2 + 2)), pieceRadius, pieceRadius);
         }
     }
-
     if (state.barBlack > 0) {
         int startY = boardHeight * 3 / 4;
         for (int i = 0; i < state.barBlack; i++) {
             painter.setBrush(Qt::black);
             painter.setPen(QPen(QColor(50, 50, 50), 2));
-            painter.drawEllipse(QPoint(centerX, startY + i * (pieceRadius * 2 + 2)),
-                pieceRadius, pieceRadius);
+            painter.drawEllipse(QPoint(centerX, startY + i * (pieceRadius * 2 + 2)), pieceRadius, pieceRadius);
         }
     }
 }
 
-void BoardWidget::drawHighlights(QPainter& p)
-{
-    if (m_selectedPoint < 0) return;
-
-    const int w = width();
-    const int h = height();
-    const int barWidth = 40;
-    const int barX = w / 2 - barWidth / 2;
-    
-    const int leftSideWidth = barX;
-    const int rightSideWidth = w - (barX + barWidth);
-    const int leftTriangleWidth = leftSideWidth / 6;
-    const int rightTriangleWidth = rightSideWidth / 6;
-
+void BoardWidget::drawHighlights(QPainter& p) {
+    // Highlight selected source
     auto getPointRect = [&](int pointIndex) -> QRect {
+        // Special handling for BAR selection
+        if (pointIndex == Game::BAR_INDEX) {
+            int barW = 40;
+            int barX = width() / 2 - barW / 2;
+            return QRect(barX, 0, barW, height());
+        }
+
+        const int w = width();
+        const int h = height();
+        const int barWidth = 40;
+        const int barX = w / 2 - barWidth / 2;
+        const int leftTriangleWidth = barX / 6;
+        const int rightTriangleWidth = (w - (barX + barWidth)) / 6;
+
         bool top = (pointIndex < 12);
         int x, triangleWidth;
-        
+
         if (pointIndex >= 0 && pointIndex <= 5) {
             x = pointIndex * leftTriangleWidth;
             triangleWidth = leftTriangleWidth;
@@ -283,40 +227,40 @@ void BoardWidget::drawHighlights(QPainter& p)
             x = barX + barWidth + (pointIndex - 12) * rightTriangleWidth;
             triangleWidth = rightTriangleWidth;
         }
-        else { 
+        else {
             x = (pointIndex - 18) * leftTriangleWidth;
             triangleWidth = leftTriangleWidth;
         }
-        
         return QRect(x, top ? 0 : h / 2, triangleWidth, h / 2);
-    };
+        };
 
-    QRect fromRect = getPointRect(m_selectedPoint);
-    p.setBrush(QColor(255, 255, 0, 80));
-    p.setPen(Qt::NoPen);
-    p.drawRect(fromRect);
+    if (m_selectedPoint != -1) {
+        p.setBrush(QColor(255, 255, 0, 80));
+        p.setPen(Qt::NoPen);
+        p.drawRect(getPointRect(m_selectedPoint));
 
-    p.setBrush(QColor(0, 255, 0, 80));
-    for (int targetPoint : m_legalTargets) {
-        QRect targetRect = getPointRect(targetPoint);
-        p.drawRect(targetRect);
+        p.setBrush(QColor(0, 255, 0, 80));
+        for (int targetPoint : m_legalTargets) {
+            // Daca e bearing off (index afara din tabla), nu desenam highlight sau il desenam undeva generic
+            if (targetPoint < 0 || targetPoint >= 24) continue;
+            p.drawRect(getPointRect(targetPoint));
+        }
     }
 }
 
-
-int BoardWidget::pointIndexFromPosition(const QPoint& pos) const
-{
+int BoardWidget::pointIndexFromPosition(const QPoint& pos) const {
     const int w = width();
     const int h = height();
     const int barWidth = 40;
     const int barX = w / 2 - barWidth / 2;
-    
-    const int leftSideWidth = barX;
-    const int rightSideWidth = w - (barX + barWidth);
-    const int leftTriangleWidth = leftSideWidth / 6;
-    const int rightTriangleWidth = rightSideWidth / 6;
+    const int leftTriangleWidth = barX / 6;
+    const int rightTriangleWidth = (w - (barX + barWidth)) / 6;
 
+    // 1. Check BAR click
     if (pos.x() >= barX && pos.x() <= barX + barWidth) {
+        // Daca jucatorul curent are piese pe bara, returnam indexul special
+        if (m_state.currentPlayer == WHITE && m_state.barWhite > 0) return Game::BAR_INDEX;
+        if (m_state.currentPlayer == BLACK && m_state.barBlack > 0) return Game::BAR_INDEX;
         return -1;
     }
 
@@ -335,20 +279,34 @@ int BoardWidget::pointIndexFromPosition(const QPoint& pos) const
             pointIndex = top ? (6 + col) : (12 + col);
         }
     }
-
     return pointIndex;
 }
 
-void BoardWidget::mousePressEvent(QMouseEvent* event)
-{
+void BoardWidget::mousePressEvent(QMouseEvent* event) {
     if (!m_game) return;
 
     int index = pointIndexFromPosition(event->pos());
+
+    // Daca s-a dat click in afara zonelor valide si nu avem nimic selectat
     if (index == -1) {
+        // Verifica daca userul a dat click "afara" pentru Bearing Off (cand o piesa e selectata)
+        if (m_selectedPoint != -1 && !m_legalTargets.empty()) {
+            // Simplificare: orice click invalid e considerat bearing off daca exista o mutare valida bear-off
+            // Cautam in tinte o valoare > 23 (White) sau < 0 (Black)
+            for (int t : m_legalTargets) {
+                if (t > 23 || t < 0) {
+                    MoveResult result = m_game->makeMove(m_selectedPoint, t);
+                    if (result == MoveResult::Success) clearSelection();
+                    else refreshState();
+                    return;
+                }
+            }
+        }
         clearSelection();
         return;
     }
 
+    // Logica standard de selectie
     if (m_selectedPoint == -1) {
         if (m_game->canSelectPoint(index)) {
             selectPoint(index);
@@ -364,9 +322,9 @@ void BoardWidget::mousePressEvent(QMouseEvent* event)
         return;
     }
 
+    // Attempt move
     if (std::find(m_legalTargets.begin(), m_legalTargets.end(), index) != m_legalTargets.end()) {
         MoveResult result = m_game->makeMove(m_selectedPoint, index);
-
         if (result == MoveResult::Success) {
             clearSelection();
         }
@@ -376,6 +334,7 @@ void BoardWidget::mousePressEvent(QMouseEvent* event)
         return;
     }
 
+    // Change selection
     if (m_game->canSelectPoint(index)) {
         selectPoint(index);
     }
