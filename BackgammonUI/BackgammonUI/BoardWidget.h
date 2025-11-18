@@ -27,20 +27,30 @@ protected:
     void mousePressEvent(QMouseEvent* event) override;
 
 private:
-    IGame* m_game;          // nu deținem, doar folosim
-    BackgammonUI* m_mainWindow; // pointer to main window for UI updates
-    GameStateDTO m_state;   // snapshot pentru desenare
+    IGame* m_game;
+    BackgammonUI* m_mainWindow;
+    GameStateDTO m_state;
 
-    int m_selectedPoint;            // punctul sursă selectat, -1 dacă niciunul
-    std::vector<int> m_legalTargets; // destinații posibile pt. punctul selectat
+    int m_selectedPoint;
+    std::vector<int> m_legalTargets;
+
+    // Variabila noua pentru a stoca castigatorul
+    Color m_winner;
+
     void refreshState();
     void clearSelection();
     void selectPoint(int index);
+
+    // Drawing helpers
     void drawTriangle(QPainter& painter, int x, int y, int width, int height, bool pointUp, int pointIndex);
-    void drawPiecesAtPoint(QPainter& painter, int centerX, int centerY,int count, Color color, int radius, bool isTopRow);
+    void drawPiecesAtPoint(QPainter& painter, int centerX, int centerY, int count, Color color, int radius, bool isTopRow);
     void drawBarPieces(QPainter& painter, const GameStateDTO& state);
-    int pointIndexFromPosition(const QPoint& pos) const;
     void drawBoard(QPainter& p);
     void drawPieces(QPainter& p);
     void drawHighlights(QPainter& p);
+
+    // Metoda noua pentru desenarea panoului de final
+    void drawGameOverPanel(QPainter& p);
+
+    int pointIndexFromPosition(const QPoint& pos) const;
 };
