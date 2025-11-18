@@ -27,6 +27,11 @@ private:
     QLabel* m_diceLabel;
     QLabel* m_playerLabel;
     QLabel* m_statusLabel;
+    QLabel* m_diceImg1;
+    QLabel* m_diceImg2;
+
+    QPixmap dicePixmap(int value) const;
+
 
     void setupUi();
     void setupMenu();

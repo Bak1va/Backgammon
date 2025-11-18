@@ -154,7 +154,7 @@ void BoardWidget::drawPieces(QPainter& painter) {
     int pieceRadius = triangleWidth / 2 - 15;  
 
 
-    GameStateDTO state = m_game->getState();
+    const GameStateDTO& state = m_state;
 
     for (int pointIndex = 0; pointIndex < 24; pointIndex++) {
         int pieceCount = state.pieceCounts[pointIndex];
