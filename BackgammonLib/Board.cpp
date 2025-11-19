@@ -19,16 +19,16 @@ Board::Board() {
     // Cadran Dreapta-Jos (12-17), Stânga-Jos (18-23)
 
     // WHITE pieces (Player 0)
-    m_columns[0] = Column(2, WHITE);   // 2 piese la start (depărtare maximă)
-    m_columns[11] = Column(5, WHITE);  // 5 piese la mijloc-dreapta sus
-    m_columns[16] = Column(3, WHITE);  // 3 piese atac (dreapta jos)
-    m_columns[23] = Column(5, WHITE);  // 5 piese "acasă" lângă bară (stânga jos) -> Corectat față de v1
+    m_columns[0] = Column(5, WHITE); // 5 albe, sus-stanga colț (13-point)
+    m_columns[22] = Column(3, WHITE); // 3 albe, jos-stanga langa bară (8-point)
+    m_columns[12] = Column(5, WHITE); // 5 albe, jos-dreapta langa bară (6-point)
+    m_columns[11] = Column(2, WHITE); // 2 albe, sus-dreapta colț (24-point)
 
     // BLACK pieces (Player 1)
-    m_columns[5] = Column(5, BLACK);   // 5 piese adversar (stânga sus lângă bară)
-    m_columns[7] = Column(3, BLACK);   // 3 piese adversar (dreapta sus)
-    m_columns[12] = Column(5, BLACK);  // 5 piese adversar (dreapta jos lângă bară)
-    m_columns[18] = Column(2, BLACK);  // 2 piese adversar în colțul casei tale (stânga jos) -> Corectat față de v1
+    m_columns[18] = Column(5, BLACK); // 5 negre, jos-stanga colț (13-point)
+    m_columns[4] = Column(3, BLACK); // 3 negre, sus-stanga langa bară (8-point)
+    m_columns[6] = Column(5, BLACK); // 5 negre, sus-dreapta langa bară (6-point)
+    m_columns[17] = Column(2, BLACK); // 2 negre, jos-dreapta colț (24-point)
 }
 
 Board::~Board() {
