@@ -14,9 +14,8 @@ Board::Board() {
     m_borneOffCount[1] = 0;
 
     // --- SETUP STANDARD BACKGAMMON ---
-    // Presupunem că White mută de la 0 -> 23 (sens trigonometric invers sau direct, depinde de interpretare)
     // Cadran Stânga-Sus (0-5), Dreapta-Sus (6-11)
-    // Cadran Dreapta-Jos (12-17), Stânga-Jos (18-23)
+    // Cadran Dreapta-Jos (18-23), Stânga-Jos (12-17)
 
     // WHITE pieces (Player 0)
     m_columns[0] = Column(5, WHITE); // 5 albe, sus-stanga colț (13-point)
