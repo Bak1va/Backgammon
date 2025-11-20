@@ -22,11 +22,7 @@ BackgammonUI::BackgammonUI(QWidget* parent)
 {
 	setupUi();
 	setupMenu();
-
-	// înregistrăm BoardWidget ca observer
 	m_game->addObserver(m_boardWidget);
-
-	// start joc
 	m_game->start();
 }
 
@@ -57,7 +53,6 @@ void BackgammonUI::setupUi()
 	auto* central = new QWidget(this);
 	auto* mainLayout = new QVBoxLayout(central);
 
-	// Control panel at the top
 	auto* controlPanel = new QWidget(central);
 	auto* controlLayout = new QHBoxLayout(controlPanel);
 
@@ -75,15 +70,12 @@ void BackgammonUI::setupUi()
 	m_diceImg1 = new QLabel(diceBox);
 	m_diceImg2 = new QLabel(diceBox);
 
-	// dimensiuni vizuale — ajustează după preferințe
 	m_diceImg1->setFixedSize(48, 48);
 	m_diceImg2->setFixedSize(48, 48);
 
-	// dacă vrei, poți lăsa ScaledContents și setezi direct pixmapul
 	m_diceImg1->setScaledContents(true);
 	m_diceImg2->setScaledContents(true);
 
-	// placeholder inițial (gol)
 	m_diceImg1->clear();
 	m_diceImg2->clear();
 
@@ -142,7 +134,7 @@ void BackgammonUI::updateUI()
 		m_diceImg1->setPixmap(p1);
 	}
 	else {
-		m_diceImg1->clear(); // sau placeholder
+		m_diceImg1->clear(); 
 	}
 
 	if (state.dice2 > 0) {
@@ -153,12 +145,11 @@ void BackgammonUI::updateUI()
 		m_diceImg2->clear();
 	}
 
-	// Update button state - disable if dice already rolled and not used
-	bool diceRolled = (state.dice1 > 0 && state.dice2 > 0);
-	m_rollButton->setEnabled(!diceRolled);
+	bool diceConsumed = (state.dice1 == 0 && state.dice2 == 0);
+	m_rollButton->setEnabled(diceConsumed);
 
 	// Update status
-	if (!diceRolled) {
+	if (diceConsumed) {
 		m_statusLabel->setText(playerText + "'s turn - Roll the dice!");
 	}
 	else {
@@ -178,10 +169,8 @@ void BackgammonUI::onRollDice()
 	m_game->rollDice();
 	updateUI();
 
-	// Check if player has any moves
 	if (!m_game->hasMovesAvailable()) {
 		QString playerText = (m_game->getCurrentPlayer() == WHITE) ? "White" : "Black";
 		m_statusLabel->setText(playerText + " has no legal moves. Turn will pass...");
-		// Note: You'll need to add logic to automatically pass turn here
 	}
 }

@@ -406,15 +406,13 @@ MoveResult Game::makeMove(int fromIndex, int toIndex) {
         }
     }
 
-    // Final de tura sau continuare
-    if ((m_dice[0] == 0 && m_dice[1] == 0) || !hasMovesAvailable()) {
+    if (m_dice[0] == 0 && m_dice[1] == 0) {
         m_diceRolled = false;
         switchTurn();
     }
-    else {
-        // Daca mai sunt zaruri dar nu mai sunt mutari, schimbam tura
-        // (verificarea e facuta partial in if-ul de mai sus cu !hasMovesAvailable)
-        // E bine sa notificam update UI oricum.
+    else if (!hasMovesAvailable()) {
+        m_diceRolled = false;
+        switchTurn();
     }
 
     notifyMoveMade(fromIndex, toIndex, MoveResult::Success);

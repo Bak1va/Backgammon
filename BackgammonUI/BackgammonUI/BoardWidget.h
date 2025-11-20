@@ -34,14 +34,12 @@ private:
     int m_selectedPoint;
     std::vector<int> m_legalTargets;
 
-    // Variabila noua pentru a stoca castigatorul
     Color m_winner;
 
     void refreshState();
     void clearSelection();
     void selectPoint(int index);
 
-    // Drawing helpers
     void drawTriangle(QPainter& painter, int x, int y, int width, int height, bool pointUp, int pointIndex);
     void drawPiecesAtPoint(QPainter& painter, int centerX, int centerY, int count, Color color, int radius, bool isTopRow);
     void drawBarPieces(QPainter& painter, const GameStateDTO& state);
@@ -49,7 +47,6 @@ private:
     void drawPieces(QPainter& p);
     void drawHighlights(QPainter& p);
 
-    // Metoda noua pentru desenarea panoului de final
     void drawGameOverPanel(QPainter& p);
 
     int pointIndexFromPosition(const QPoint& pos) const;

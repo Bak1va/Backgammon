@@ -3,10 +3,9 @@
 #include "Game.h" 
 #include <QPainter>
 #include <QMouseEvent>
-#include <QMessageBox> // Necesara pentru fereastra de dialog
+#include <QMessageBox> 
 #include <algorithm>
 
-// Constante UI
 const int BEAR_OFF_WIDTH = 60;
 
 BoardWidget::BoardWidget(QWidget* parent, IGame* game, BackgammonUI* mainWindow)
@@ -14,7 +13,7 @@ BoardWidget::BoardWidget(QWidget* parent, IGame* game, BackgammonUI* mainWindow)
     m_game(game),
     m_mainWindow(mainWindow),
     m_selectedPoint(-1),
-    m_winner(NONE) // Initializam castigatorul cu NONE
+    m_winner(NONE) 
 {
     setMinimumSize(960, 500);
     if (m_game) {
@@ -37,7 +36,6 @@ void BoardWidget::clearSelection() {
 
 void BoardWidget::selectPoint(int index) {
     if (!m_game) return;
-    // Daca jocul e gata, nu mai permitem selectii
     if (m_winner != NONE) return;
 
     m_selectedPoint = index;
@@ -46,7 +44,7 @@ void BoardWidget::selectPoint(int index) {
 }
 
 void BoardWidget::onGameStarted() {
-    m_winner = NONE; // Resetam castigatorul la joc nou
+    m_winner = NONE; 
     clearSelection();
     refreshState();
 }
@@ -60,13 +58,11 @@ void BoardWidget::onMoveMade(Color, int, int, MoveResult) {
 
 void BoardWidget::onTurnChanged(Color) { clearSelection(); refreshState(); }
 
-// AICI SE DECLANSEAZA CASTIGUL
 void BoardWidget::onGameFinished(Color winner) {
     m_winner = winner;
     clearSelection();
-    refreshState(); // Fortam redesenarea pentru a aparea panoul grafic
+    refreshState();
 
-    // Afisam si o fereastra standard de dialog
     QString winnerName = (winner == WHITE) ? "WHITE" : "BLACK";
     QMessageBox::information(this, "Game Over",
         "Congratulations! Player " + winnerName + " has won the game!");
@@ -81,32 +77,27 @@ void BoardWidget::paintEvent(QPaintEvent*) {
     drawPieces(p);
     drawHighlights(p);
 
-    // Daca jocul s-a terminat, desenam panoul deasupra tuturor
+    // If the game is over we draw the panel.
     if (m_winner != NONE) {
         drawGameOverPanel(p);
     }
 }
 
 void BoardWidget::drawGameOverPanel(QPainter& p) {
-    // 1. Fundal semi-transparent intunecat peste toata tabla
     p.fillRect(rect(), QColor(0, 0, 0, 180));
-
-    // 2. Textul "WINNER"
     p.setPen(Qt::white);
     QFont font("Arial", 32, QFont::Bold);
     p.setFont(font);
 
     QString text = (m_winner == WHITE) ? "WHITE WINS!" : "BLACK WINS!";
 
-    // Centram textul
     p.drawText(rect(), Qt::AlignCenter, text);
 
-    // 3. Subtext
     QFont subFont("Arial", 16);
     p.setFont(subFont);
     p.setPen(QColor(200, 200, 200));
     QRect subRect = rect();
-    subRect.setTop(subRect.top() + 80); // Mutam putin mai jos
+    subRect.setTop(subRect.top() + 80); 
     p.drawText(subRect, Qt::AlignCenter, "Go to Game -> New Game to restart");
 }
 
@@ -264,7 +255,6 @@ void BoardWidget::drawBarPieces(QPainter& painter, const GameStateDTO& state) {
 }
 
 void BoardWidget::drawHighlights(QPainter& p) {
-    // Daca e Game Over, nu mai desenam highlights
     if (m_winner != NONE) return;
 
     auto getPointRect = [&](int pointIndex) -> QRect {
@@ -360,7 +350,7 @@ int BoardWidget::pointIndexFromPosition(const QPoint& pos) const {
 
 void BoardWidget::mousePressEvent(QMouseEvent* event) {
     if (!m_game) return;
-    if (m_winner != NONE) return; // Blocheaza input daca jocul s-a terminat
+    if (m_winner != NONE) return; 
 
     int index = pointIndexFromPosition(event->pos());
 
