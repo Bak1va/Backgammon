@@ -106,7 +106,6 @@ void BoardWidget::drawBoard(QPainter& p) {
     const int h = height();
     int barWidth = 40;
     int barX = w / 2 - barWidth / 2;
-
     int leftSideWidth = barX;
     int rightSideWidth = w - (barX + barWidth);
     int triangleWidth = leftSideWidth / 6;
@@ -119,16 +118,24 @@ void BoardWidget::drawBoard(QPainter& p) {
     barGradient.setColorAt(1, QColor(101, 67, 33));
     p.fillRect(barRect, barGradient);
 
+    // TOP ROW (left to right visually): 11 10 9 8 7 6   |   5 4 3 2 1 0
+    // BOTTOM ROW (left to right visually): 12 13 14 15 16 17   |   18 19 20 21 22 23
     for (int i = 0; i < 6; i++) {
-        drawTriangle(p, i * triangleWidth, 0, triangleWidth, triangleHeight, false, i);
-        drawTriangle(p, i * triangleWidth, h, triangleWidth, triangleHeight, true, 18 + i);
+        // Left half: top -> indices 11..6 (reversed), bottom -> 12..17
+        int topLeftIndex = 11 - i;
+        int bottomLeftIndex = 12 + i;
+        drawTriangle(p, i * triangleWidth, 0, triangleWidth, triangleHeight, false, topLeftIndex);
+        drawTriangle(p, i * triangleWidth, h, triangleWidth, triangleHeight, true, bottomLeftIndex);
     }
 
     int rightStartX = barX + barWidth;
     triangleWidth = rightSideWidth / 6;
     for (int i = 0; i < 6; i++) {
-        drawTriangle(p, rightStartX + i * triangleWidth, 0, triangleWidth, triangleHeight, false, 6 + i);
-        drawTriangle(p, rightStartX + i * triangleWidth, h, triangleWidth, triangleHeight, true, 12 + i);
+        // Right half: top -> indices 5..0 (reversed), bottom -> 18..23
+        int topRightIndex = 5 - i;
+        int bottomRightIndex = 18 + i;
+        drawTriangle(p, rightStartX + i * triangleWidth, 0, triangleWidth, triangleHeight, false, topRightIndex);
+        drawTriangle(p, rightStartX + i * triangleWidth, h, triangleWidth, triangleHeight, true, bottomRightIndex);
     }
 
     QRect bearOffRect(w, 0, BEAR_OFF_WIDTH, h);
@@ -160,8 +167,11 @@ void BoardWidget::drawPieces(QPainter& painter) {
     int barWidth = 40;
     int barX = boardWidth / 2 - barWidth / 2;
     int leftSideWidth = barX;
-    int triangleWidth = leftSideWidth / 6;
-    int pieceRadius = triangleWidth / 2 - 5;
+    int rightSideWidth = boardWidth - (barX + barWidth);
+    int leftTriangleWidth = leftSideWidth / 6;
+    int rightTriangleWidth = rightSideWidth / 6;
+
+    int pieceRadius = leftTriangleWidth / 2 - 5;
     if (pieceRadius > 22) pieceRadius = 22;
 
     const GameStateDTO& state = m_state;
@@ -174,25 +184,39 @@ void BoardWidget::drawPieces(QPainter& painter) {
             int x, y;
             bool isTopRow;
 
-            if (pointIndex >= 0 && pointIndex <= 5) {
-                x = pointIndex * triangleWidth + triangleWidth / 2;
+            // Mapping to match visual layout:
+            // Top row: 11 10 9 8 7 6  |  5 4 3 2 1 0
+            // Bottom row: 12 13 14 15 16 17  |  18 19 20 21 22 23
+            if (pointIndex >= 6 && pointIndex <= 11) {
+                // Top-left half: indices 11..6
+                int col = 11 - pointIndex; // 0..5
+                x = col * leftTriangleWidth + leftTriangleWidth / 2;
                 y = pieceRadius + 5;
                 isTopRow = true;
             }
-            else if (pointIndex >= 6 && pointIndex <= 11) {
-                x = barX + barWidth + (pointIndex - 6) * triangleWidth + triangleWidth / 2;
+            else if (pointIndex >= 0 && pointIndex <= 5) {
+                // Top-right half: indices 5..0
+                int col = 5 - pointIndex; // 0..5
+                x = barX + barWidth + col * rightTriangleWidth + rightTriangleWidth / 2;
                 y = pieceRadius + 5;
                 isTopRow = true;
             }
             else if (pointIndex >= 12 && pointIndex <= 17) {
-                x = barX + barWidth + (pointIndex - 12) * triangleWidth + triangleWidth / 2;
+                // Bottom-left half: indices 12..17
+                int col = pointIndex - 12; // 0..5
+                x = col * leftTriangleWidth + leftTriangleWidth / 2;
+                y = boardHeight - pieceRadius - 5;
+                isTopRow = false;
+            }
+            else if (pointIndex >= 18 && pointIndex <= 23) {
+                // Bottom-right half: indices 18..23
+                int col = pointIndex - 18; // 0..5
+                x = barX + barWidth + col * rightTriangleWidth + rightTriangleWidth / 2;
                 y = boardHeight - pieceRadius - 5;
                 isTopRow = false;
             }
             else {
-                x = (pointIndex - 18) * triangleWidth + triangleWidth / 2;
-                y = boardHeight - pieceRadius - 5;
-                isTopRow = false;
+                continue;
             }
             drawPiecesAtPoint(painter, x, y, pieceCount, color, pieceRadius, isTopRow);
         }
@@ -272,24 +296,40 @@ void BoardWidget::drawHighlights(QPainter& p) {
         const int rightTriangleWidth = (w - (barX + barWidth)) / 6;
 
         bool top = (pointIndex < 12);
-        int x, triangleWidth;
+        int x = 0;
+        int triangleWidth = 0;
 
-        if (pointIndex >= 0 && pointIndex <= 5) {
-            x = pointIndex * leftTriangleWidth;
+        // Match the same visual mapping as drawBoard/drawPieces:
+        // Top: 11 10 9 8 7 6 | 5 4 3 2 1 0
+        // Bottom: 12 13 14 15 16 17 | 18 19 20 21 22 23
+        if (pointIndex >= 6 && pointIndex <= 11) {
+            // Top-left
+            int col = 11 - pointIndex; // 0..5
+            x = col * leftTriangleWidth;
             triangleWidth = leftTriangleWidth;
         }
-        else if (pointIndex >= 6 && pointIndex <= 11) {
-            x = barX + barWidth + (pointIndex - 6) * rightTriangleWidth;
+        else if (pointIndex >= 0 && pointIndex <= 5) {
+            // Top-right
+            int col = 5 - pointIndex; // 0..5
+            x = barX + barWidth + col * rightTriangleWidth;
             triangleWidth = rightTriangleWidth;
         }
         else if (pointIndex >= 12 && pointIndex <= 17) {
-            x = barX + barWidth + (pointIndex - 12) * rightTriangleWidth;
+            // Bottom-left
+            int col = pointIndex - 12; // 0..5
+            x = col * leftTriangleWidth;
+            triangleWidth = leftTriangleWidth;
+        }
+        else if (pointIndex >= 18 && pointIndex <= 23) {
+            // Bottom-right
+            int col = pointIndex - 18; // 0..5
+            x = barX + barWidth + col * rightTriangleWidth;
             triangleWidth = rightTriangleWidth;
         }
         else {
-            x = (pointIndex - 18) * leftTriangleWidth;
-            triangleWidth = leftTriangleWidth;
+            return QRect();
         }
+
         return QRect(x, top ? 0 : h / 2, triangleWidth, h / 2);
         };
 
@@ -336,13 +376,27 @@ int BoardWidget::pointIndexFromPosition(const QPoint& pos) const {
     if (pos.x() < barX) {
         int col = pos.x() / leftTriangleWidth;
         if (col >= 0 && col < 6) {
-            pointIndex = top ? col : (18 + col);
+            if (top) {
+                // Top-left: 11 10 9 8 7 6
+                pointIndex = 11 - col;
+            }
+            else {
+                // Bottom-left: 12 13 14 15 16 17
+                pointIndex = 12 + col;
+            }
         }
     }
     else if (pos.x() > barX + barWidth && pos.x() < w) {
         int col = (pos.x() - (barX + barWidth)) / rightTriangleWidth;
         if (col >= 0 && col < 6) {
-            pointIndex = top ? (6 + col) : (12 + col);
+            if (top) {
+                // Top-right: 5 4 3 2 1 0
+                pointIndex = 5 - col;
+            }
+            else {
+                // Bottom-right: 18 19 20 21 22 23
+                pointIndex = 18 + col;
+            }
         }
     }
     return pointIndex;
