@@ -13,21 +13,16 @@ Board::Board() {
     m_borneOffCount[0] = 0;
     m_borneOffCount[1] = 0;
 
-    // --- SETUP STANDARD BACKGAMMON ---
-    // Cadran Stânga-Sus (0-5), Dreapta-Sus (6-11)
-    // Cadran Dreapta-Jos (18-23), Stânga-Jos (12-17)
 
-    // WHITE pieces (Player 0)
-    m_columns[0] = Column(5, WHITE); // 5 albe, sus-stanga colț (13-point)
-    m_columns[22] = Column(3, WHITE); // 3 albe, jos-stanga langa bară (8-point)
-    m_columns[12] = Column(5, WHITE); // 5 albe, jos-dreapta langa bară (6-point)
-    m_columns[11] = Column(2, WHITE); // 2 albe, sus-dreapta colț (24-point)
+    m_columns[5] = Column(5, BLACK);
+    m_columns[7] = Column(3, BLACK);
+    m_columns[12] = Column(5, BLACK);
+    m_columns[23] = Column(2, BLACK);
 
-    // BLACK pieces (Player 1)
-    m_columns[18] = Column(5, BLACK); // 5 negre, jos-stanga colț (13-point)
-    m_columns[4] = Column(3, BLACK); // 3 negre, sus-stanga langa bară (8-point)
-    m_columns[6] = Column(5, BLACK); // 5 negre, sus-dreapta langa bară (6-point)
-    m_columns[17] = Column(2, BLACK); // 2 negre, jos-dreapta colț (24-point)
+    m_columns[0] = Column(2, WHITE);
+    m_columns[11] = Column(5, WHITE);
+    m_columns[16] = Column(3, WHITE);
+    m_columns[18] = Column(5, WHITE);
 }
 
 Board::~Board() {
