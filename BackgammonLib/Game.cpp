@@ -77,6 +77,12 @@ bool Game::areAllPiecesHome(Color player) const {
     return true;
 }
 
+bool Game::canBearOff(Color player) const
+{
+    if (!areAllPiecesHome(player)) return false;
+    return true;
+}
+
 bool Game::isHomeBoard(int index, Color player) const {
     if (player == WHITE) return index >= 18 && index <= 23;
     return index >= 0 && index <= 5;
