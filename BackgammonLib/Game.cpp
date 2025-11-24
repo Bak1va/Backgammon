@@ -412,6 +412,8 @@ MoveResult Game::makeMove(int fromIndex, int toIndex) {
         }
     }
 
+    notifyMoveMade(fromIndex, toIndex, MoveResult::Success);
+
     if (m_dice[0] == 0 && m_dice[1] == 0) {
         m_diceRolled = false;
         switchTurn();
@@ -421,7 +423,6 @@ MoveResult Game::makeMove(int fromIndex, int toIndex) {
         switchTurn();
     }
 
-    notifyMoveMade(fromIndex, toIndex, MoveResult::Success);
     return MoveResult::Success;
 }
 

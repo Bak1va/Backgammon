@@ -102,7 +102,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;GTEST_LINKED_AS_SHARED_LIBRARY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)..\BackgammonLib\</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
@@ -131,7 +131,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\BackgammonLib\BackgammonLib.vcxproj">
+    <ProjectReference Include="..\BackgammonLib\BackgammonLib.vcxproj">
       <Project>{9e8d1bd3-53dd-4a65-ad14-de68f40ae1d6}</Project>
     </ProjectReference>
   </ItemGroup>
@@ -144,6 +144,7 @@
     <ClCompile Include="test_game_legalTargets.cpp" />
     <ClCompile Include="test_game_moves.cpp" />
     <ClCompile Include="test_game_moves_hit.cpp" />
+    <ClCompile Include="test_game_observer.cpp" />
     <ClCompile Include="test_game_start.cpp" />
     <ClCompile Include="test_main.cpp" />
   </ItemGroup>
