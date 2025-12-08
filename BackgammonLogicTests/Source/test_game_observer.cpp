@@ -1,10 +1,10 @@
 ﻿#include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "Game.h"
-#include "IGameObserver.h"
-#include "MoveResult.h"
-#include "Color.h"
+#include "Game.hpp"
+#include "IGameObserver.hpp"
+#include "MoveResult.hpp"
+#include "Color.hpp"
 
 // ==============================
 // MOCK OBSERVER

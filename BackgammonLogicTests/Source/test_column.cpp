@@ -1,6 +1,6 @@
 ﻿#include <gtest/gtest.h>
-#include "Column.h"
-#include "Color.h"
+#include "Column.hpp"
+#include "Color.hpp"
 
 // =========================
 // COLUMN TESTS

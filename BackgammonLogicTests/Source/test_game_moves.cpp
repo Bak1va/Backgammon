@@ -1,5 +1,5 @@
 ﻿#include <gtest/gtest.h>
-#include "Game.h"
+#include "Game.hpp"
 
 // =============================
 // GAME MOVE VALIDATION TESTS
@@ -10,7 +10,7 @@ TEST(GameMoveTests, MoveFailsIfDiceNotRolled) {
     g.start();
 
     MoveResult r = g.makeMove(0, 5);
-    EXPECT_EQ(r, MoveResult::DiceNotRolled);
+    EXPECT_EQ(r, MoveResult::DICE_NOT_ROLLED);
 }
 
 TEST(GameMoveTests, CannotMoveOpponentPieces) {
@@ -20,7 +20,7 @@ TEST(GameMoveTests, CannotMoveOpponentPieces) {
 
     MoveResult r = g.makeMove(5, 6);
 
-    EXPECT_EQ(r, MoveResult::InvalidMove);
+    EXPECT_EQ(r, MoveResult::INVALID_MOVE);
 }
 
 TEST(GameMoveTests, CannotMoveFromEmptyColumn) {
@@ -30,7 +30,7 @@ TEST(GameMoveTests, CannotMoveFromEmptyColumn) {
 
     MoveResult r = g.makeMove(2, 3);
 
-    EXPECT_EQ(r, MoveResult::InvalidMove);
+    EXPECT_EQ(r, MoveResult::INVALID_MOVE);
 }
 
 TEST(GameMoveTests, CannotMoveIfBarOccupied) {

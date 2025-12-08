@@ -1,7 +1,7 @@
 #pragma once
-#include "Color.h"
-#include "MoveResult.h"
-#include "GameStateDTO.h"
+#include "Color.hpp"
+#include "MoveResult.hpp"
+#include "GameStateDTO.hpp"
 
 class IGameObserver;
 

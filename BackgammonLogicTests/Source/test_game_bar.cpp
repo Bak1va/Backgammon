@@ -1,5 +1,5 @@
 ﻿#include <gtest/gtest.h>
-#include "Game.h"
+#include "Game.hpp"
 
 // =============================
 // BAR LOGIC TESTS
@@ -11,7 +11,7 @@ TEST(GameBarTests, CannotMoveFromBarIfZeroPieces) {
     g.rollDice();
 
     MoveResult r = g.makeMove(Game::BAR_INDEX, 0);
-    EXPECT_EQ(r, MoveResult::InvalidMove);
+    EXPECT_EQ(r, MoveResult::INVALID_MOVE);
 }
 
 TEST(GameBarTests, CannotMoveOtherPiecesIfBarOccupied) {

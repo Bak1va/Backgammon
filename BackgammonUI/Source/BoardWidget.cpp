@@ -1,12 +1,12 @@
-﻿#include "BoardWidget.h"
-#include "BackgammonUI.h"
-#include "Game.h" 
+﻿#include "BoardWidget.hpp"
+#include "BackgammonUI.hpp"
+#include "Game.hpp"
 #include <QPainter>
 #include <QMouseEvent>
 #include <QMessageBox> 
 #include <algorithm>
 
-const int BEAR_OFF_WIDTH = 60;
+constexpr int BEAR_OFF_WIDTH = 60;
 
 BoardWidget::BoardWidget(QWidget* parent, IGame* game, BackgammonUI* mainWindow)
     : QWidget(parent),
@@ -427,7 +427,7 @@ void BoardWidget::mousePressEvent(QMouseEvent* event) {
 
     if (std::find(m_legalTargets.begin(), m_legalTargets.end(), index) != m_legalTargets.end()) {
         MoveResult result = m_game->makeMove(m_selectedPoint, index);
-        if (result == MoveResult::Success) clearSelection();
+        if (result == MoveResult::SUCCESS) clearSelection();
         else refreshState();
         return;
     }

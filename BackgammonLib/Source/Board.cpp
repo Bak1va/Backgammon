@@ -1,5 +1,4 @@
-﻿#include "Board.h"
-#include <algorithm>
+﻿#include "Board.hpp"
 
 Board::Board() {
     // Initialize all columns to empty

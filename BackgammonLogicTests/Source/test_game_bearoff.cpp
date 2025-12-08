@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "Game.h"
+#include "Game.hpp"
 
 // =============================
 // BEAR OFF TESTS
@@ -11,5 +11,5 @@ TEST(GameBearOffTests, CannotBearOffAtStart) {
     g.rollDice();
 
     MoveResult rWhite = g.makeMove(18, 24);
-    EXPECT_EQ(rWhite, MoveResult::CannotBearOff);
+    EXPECT_EQ(rWhite, MoveResult::CANNOT_BEAR_OFF);
 }

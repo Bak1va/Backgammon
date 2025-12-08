@@ -1,7 +1,7 @@
 #pragma once
 
 #include <array>
-#include "Color.h"
+#include "Color.hpp"
 
 struct GameStateDTO {
     std::array<int, 24> pieceCounts{};

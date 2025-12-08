@@ -1,15 +1,16 @@
-﻿#include "BackgammonUI.h"
-#include "BoardWidget.h"
-#include "Game.h"
-#include <QWidget>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QMenuBar>
-#include <QAction>
-#include <QPushButton>
-#include <QLabel>
-#include <QMessageBox>
+﻿#include "BackgammonUI.hpp"
 #include <iostream>
+
+#include <QAction>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QMenuBar>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QWidget>
+
+#include "BoardWidget.hpp"
+#include "Game.hpp"
 
 BackgammonUI::BackgammonUI(QWidget* parent)
 	: QMainWindow(parent),

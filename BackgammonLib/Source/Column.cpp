@@ -1,4 +1,4 @@
-#include "Column.h"
+#include "Column.hpp"
 
 Column::Column() : m_pieceCount(0), m_color(NONE) {
 }

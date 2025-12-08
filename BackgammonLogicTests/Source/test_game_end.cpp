@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "Game.h"
+#include "Game.hpp"
 
 // =============================
 // END GAME TESTS

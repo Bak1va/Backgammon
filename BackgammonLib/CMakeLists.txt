@@ -8,7 +8,7 @@ file(GLOB LIB_SOURCES
 )
 
 file(GLOB LIB_HEADERS
-    "${CMAKE_CURRENT_SOURCE_DIR}/Include/*.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Include/*.hPP"
 )
 
 add_library(BackgammonLib STATIC ${LIB_SOURCES} ${LIB_HEADERS})
@@ -19,7 +19,7 @@ target_include_directories(BackgammonLib
         $<INSTALL_INTERFACE:include>
 )
 
-target_compile_features(BackgammonLib PUBLIC cxx_std_20)
+target_compile_features(BackgammonLib PUBLIC cxx_std_17)
 
 set_target_properties(BackgammonLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 

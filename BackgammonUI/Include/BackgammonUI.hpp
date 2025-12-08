@@ -1,8 +1,11 @@
 ﻿#pragma once
 
-#include <QMainWindow>
-#include "IGame.h"
 #include <memory>
+
+#include <QMainWindow>
+
+#include "IGame.hpp"
+
 
 class BoardWidget;
 class QPushButton;

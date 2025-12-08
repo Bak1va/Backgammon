@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "Game.h"
+#include "Game.hpp"
 
 // =============================
 // HIT LOGIC TESTS
@@ -12,5 +12,5 @@ TEST(GameHitTests, CannotHitIfSameColor) {
 
     MoveResult r = g.makeMove(11, 11);
 
-    EXPECT_NE(r, MoveResult::Success);
+    EXPECT_NE(r, MoveResult::SUCCESS);
 }

@@ -1,7 +1,7 @@
 ﻿#include <algorithm>
 #include <random>
 #include <cmath>
-#include "Game.h"
+#include "Game.hpp"
 
 // Constante pentru a identifica zonele "off-board"
 const int OFF_BOARD_WHITE = 24;
@@ -284,14 +284,14 @@ std::vector<int> Game::getLegalTargets(int fromIndex) const {
 }
 
 MoveResult Game::makeMove(int fromIndex, int toIndex) {
-    if (m_phase != GamePhase::InProgress) return MoveResult::GameNotStarted;
-    if (!m_diceRolled) return MoveResult::DiceNotRolled;
+    if (m_phase != GamePhase::InProgress) return MoveResult::GAME_NOT_STARTED;
+    if (!m_diceRolled) return MoveResult::DICE_NOT_ROLLED;
 
     int pIndex = playerIndex(m_currentPlayer);
 
     // --- CAZ 1: MUTARE DE PE BARA ---
     if (fromIndex == BAR_INDEX) {
-        if (m_board.getBarCount(pIndex) == 0) return MoveResult::InvalidMove;
+        if (m_board.getBarCount(pIndex) == 0) return MoveResult::INVALID_MOVE;
 
         // Calculam zarul folosit
         int dieUsed = 0;
@@ -303,8 +303,8 @@ MoveResult Game::makeMove(int fromIndex, int toIndex) {
         if (m_dice[0] == dieUsed) dieIdx = 0;
         else if (m_dice[1] == dieUsed) dieIdx = 1;
 
-        if (dieIdx == -1) return MoveResult::InvalidMove;
-        if (isMoveBlocked(toIndex, m_currentPlayer)) return MoveResult::BlockedByOpponent;
+        if (dieIdx == -1) return MoveResult::INVALID_MOVE;
+        if (isMoveBlocked(toIndex, m_currentPlayer)) return MoveResult::BLOCKED_BY_OPPONENT;
 
         // HIT Logic
         if (canHit(toIndex, m_currentPlayer)) {
@@ -320,19 +320,19 @@ MoveResult Game::makeMove(int fromIndex, int toIndex) {
     // --- CAZ 2: MUTARE DE PE TABLA ---
     else {
         // Validari basic
-        if (fromIndex < 0 || fromIndex >= 24) return MoveResult::InvalidFromColumn;
-        if (m_board.getBarCount(pIndex) > 0) return MoveResult::InvalidMove; // Trebuie intai scos de pe bara
+        if (fromIndex < 0 || fromIndex >= 24) return MoveResult::INVALID_FROM_COLUMN;
+        if (m_board.getBarCount(pIndex) > 0) return MoveResult::INVALID_MOVE; // Trebuie intai scos de pe bara
 
         Column& fromCol = m_board.getColumn(fromIndex);
-        if (fromCol.getPieceCount() == 0 || fromCol.getColor() != m_currentPlayer) return MoveResult::InvalidMove;
+        if (fromCol.getPieceCount() == 0 || fromCol.getColor() != m_currentPlayer) return MoveResult::INVALID_MOVE;
 
         // Verificam daca e Bearing Off (destinatia e 24 sau -1)
         bool isBearingOff = (toIndex == OFF_BOARD_WHITE) || (toIndex == OFF_BOARD_BLACK);
 
         if (isBearingOff) {
-            if (!areAllPiecesHome(m_currentPlayer)) return MoveResult::CannotBearOff;
+            if (!areAllPiecesHome(m_currentPlayer)) return MoveResult::CANNOT_BEAR_OFF;
             if ((m_currentPlayer == WHITE && toIndex != OFF_BOARD_WHITE) ||
-                (m_currentPlayer == BLACK && toIndex != OFF_BOARD_BLACK)) return MoveResult::InvalidMove;
+                (m_currentPlayer == BLACK && toIndex != OFF_BOARD_BLACK)) return MoveResult::INVALID_MOVE;
 
             // Calculam zarul necesar
             int distToEdge = (m_currentPlayer == WHITE) ? (24 - fromIndex) : (fromIndex + 1);
@@ -371,34 +371,34 @@ MoveResult Game::makeMove(int fromIndex, int toIndex) {
                 }
             }
 
-            if (dieIdx == -1) return MoveResult::InvalidMove;
+            if (dieIdx == -1) return MoveResult::INVALID_MOVE;
 
             // Executam scoaterea
             fromCol.removePiece();
             m_board.incrementBorneOffCount(pIndex);
             m_dice[dieIdx] = 0;
 
-            notifyMoveMade(fromIndex, toIndex, MoveResult::Success);
+            notifyMoveMade(fromIndex, toIndex, MoveResult::SUCCESS);
 
             // VERIFICARE CASTIG
             if (m_board.getBorneOffCount(pIndex) == 15) {
                 m_phase = GamePhase::Finished;
                 notifyGameFinished(m_currentPlayer);
-                return MoveResult::Success;
+                return MoveResult::SUCCESS;
             }
 
         }
         else {
             // --- Mutare Standard pe tabla ---
-            if (toIndex < 0 || toIndex >= 24) return MoveResult::InvalidToColumn;
+            if (toIndex < 0 || toIndex >= 24) return MoveResult::INVALID_TO_COLUMN;
 
             int distance = std::abs(toIndex - fromIndex);
             int dieIdx = -1;
             if (m_dice[0] == distance) dieIdx = 0;
             else if (m_dice[1] == distance) dieIdx = 1;
 
-            if (dieIdx == -1) return MoveResult::InvalidMove;
-            if (isMoveBlocked(toIndex, m_currentPlayer)) return MoveResult::BlockedByOpponent;
+            if (dieIdx == -1) return MoveResult::INVALID_MOVE;
+            if (isMoveBlocked(toIndex, m_currentPlayer)) return MoveResult::BLOCKED_BY_OPPONENT;
 
             if (canHit(toIndex, m_currentPlayer)) {
                 Column& toCol = m_board.getColumn(toIndex);
@@ -412,7 +412,7 @@ MoveResult Game::makeMove(int fromIndex, int toIndex) {
         }
     }
 
-    notifyMoveMade(fromIndex, toIndex, MoveResult::Success);
+    notifyMoveMade(fromIndex, toIndex, MoveResult::SUCCESS);
 
     if (m_dice[0] == 0 && m_dice[1] == 0) {
         m_diceRolled = false;
@@ -423,7 +423,7 @@ MoveResult Game::makeMove(int fromIndex, int toIndex) {
         switchTurn();
     }
 
-    return MoveResult::Success;
+    return MoveResult::SUCCESS;
 }
 
 // ... restul metodelor (getters, observers) raman identice cu fisierul anterior ...

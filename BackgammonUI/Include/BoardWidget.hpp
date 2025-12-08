@@ -1,10 +1,12 @@
 ﻿#pragma once
 
-#include <QWidget>
 #include <vector>
-#include "IGameObserver.h"
-#include "IGame.h"
-#include "GameStateDTO.h"
+
+#include <QWidget>
+
+#include "GameStateDTO.hpp"
+#include "IGame.hpp"
+#include "IGameObserver.hpp"
 
 class BackgammonUI;
 

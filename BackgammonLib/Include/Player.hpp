@@ -1,5 +1,5 @@
 #pragma once
-#include "Color.h"
+#include "Color.hpp"
 
 class Player
 {

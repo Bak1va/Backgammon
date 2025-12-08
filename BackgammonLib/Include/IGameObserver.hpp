@@ -1,6 +1,6 @@
 #pragma once
-#include "Color.h"
-#include "MoveResult.h"
+#include "Color.hpp"
+#include "MoveResult.hpp"
 
 class IGameObserver {
 public:
