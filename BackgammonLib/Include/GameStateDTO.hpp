@@ -13,7 +13,7 @@ struct GameStateDTO {
     int borneOffWhite = 0;
     int borneOffBlack = 0;
 
-    Color currentPlayer = NONE;
+    Color currentPlayer = Color::NONE;
 
     int dice1 = 0;
     int dice2 = 0;

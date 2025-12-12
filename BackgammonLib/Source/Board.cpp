@@ -3,7 +3,7 @@
 Board::Board() {
     // Initialize all columns to empty
     for (int i = 0; i < 24; ++i) {
-        m_columns[i] = Column(0, NONE);
+        m_columns[i] = Column(0, Color::NONE);
     }
 
     // Initialize bar and borne off counts
@@ -13,15 +13,15 @@ Board::Board() {
     m_borneOffCount[1] = 0;
 
 
-    m_columns[5] = Column(5, BLACK);
-    m_columns[7] = Column(3, BLACK);
-    m_columns[12] = Column(5, BLACK);
-    m_columns[23] = Column(2, BLACK);
+    m_columns[5] = Column(5, Color::BLACK);
+    m_columns[7] = Column(3, Color::BLACK);
+    m_columns[12] = Column(5, Color::BLACK);
+    m_columns[23] = Column(2, Color::BLACK);
 
-    m_columns[0] = Column(2, WHITE);
-    m_columns[11] = Column(5, WHITE);
-    m_columns[16] = Column(3, WHITE);
-    m_columns[18] = Column(5, WHITE);
+    m_columns[0] = Column(2, Color::WHITE);
+    m_columns[11] = Column(5, Color::WHITE);
+    m_columns[16] = Column(3, Color::WHITE);
+    m_columns[18] = Column(5, Color::WHITE);
 }
 
 Board::~Board() {
@@ -31,7 +31,7 @@ Column& Board::getColumn(int index) {
     if (index >= 0 && index < 24) {
         return m_columns[index];
     }
-    static Column emptyColumn(0, NONE);
+    static Column emptyColumn(0, Color::NONE);
     return emptyColumn;
 }
 
@@ -39,7 +39,7 @@ const Column& Board::getColumn(int index) const {
     if (index >= 0 && index < 24) {
         return m_columns[index];
     }
-    static Column emptyColumn(0, NONE);
+    static Column emptyColumn(0, Color::NONE);
     return emptyColumn;
 }
 

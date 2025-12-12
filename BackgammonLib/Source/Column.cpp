@@ -1,6 +1,6 @@
 #include "Column.hpp"
 
-Column::Column() : m_pieceCount(0), m_color(NONE) {
+Column::Column() : m_pieceCount(0), m_color(Color::NONE) {
 }
 
 Column::Column(int pieceCount, Color color)
@@ -19,7 +19,7 @@ void Column::removePiece() {
 	if (m_pieceCount > 0) {
 		m_pieceCount--;
 		if (m_pieceCount == 0) {
-			m_color = NONE;
+			m_color = Color::NONE;
 		}
 	}
 }
@@ -27,7 +27,7 @@ void Column::setColor(Color color) {
 	m_color = color;
 }
 void Column::addPiece(Color color) {
-	if (m_color == NONE) {
+	if (m_color == Color::NONE) {
 		m_color = color;
 		m_pieceCount = 1;
 	}

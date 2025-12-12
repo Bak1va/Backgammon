@@ -13,7 +13,7 @@ BoardWidget::BoardWidget(QWidget* parent, IGame* game, BackgammonUI* mainWindow)
     m_game(game),
     m_mainWindow(mainWindow),
     m_selectedPoint(-1),
-    m_winner(NONE) 
+    m_winner(Color::NONE)
 {
     setMinimumSize(960, 500);
     if (m_game) {
@@ -36,7 +36,7 @@ void BoardWidget::clearSelection() {
 
 void BoardWidget::selectPoint(int index) {
     if (!m_game) return;
-    if (m_winner != NONE) return;
+    if (m_winner != Color::NONE) return;
 
     m_selectedPoint = index;
     m_legalTargets = m_game->getLegalTargets(index);
@@ -44,7 +44,7 @@ void BoardWidget::selectPoint(int index) {
 }
 
 void BoardWidget::onGameStarted() {
-    m_winner = NONE; 
+    m_winner = Color::NONE; 
     clearSelection();
     refreshState();
 }
@@ -63,7 +63,7 @@ void BoardWidget::onGameFinished(Color winner) {
     clearSelection();
     refreshState();
 
-    QString winnerName = (winner == WHITE) ? "WHITE" : "BLACK";
+    QString winnerName = (winner == Color::WHITE) ? "Color::WHITE" : "BLACK";
     QMessageBox::information(this, "Game Over",
         "Congratulations! Player " + winnerName + " has won the game!");
 }
@@ -78,7 +78,7 @@ void BoardWidget::paintEvent(QPaintEvent*) {
     drawHighlights(p);
 
     // If the game is over we draw the panel.
-    if (m_winner != NONE) {
+    if (m_winner != Color::NONE) {
         drawGameOverPanel(p);
     }
 }
@@ -89,7 +89,7 @@ void BoardWidget::drawGameOverPanel(QPainter& p) {
     QFont font("Arial", 32, QFont::Bold);
     p.setFont(font);
 
-    QString text = (m_winner == WHITE) ? "WHITE WINS!" : "BLACK WINS!";
+    QString text = (m_winner == Color::WHITE) ? "Color::WHITE WINS!" : "BLACK WINS!";
 
     p.drawText(rect(), Qt::AlignCenter, text);
 
@@ -180,7 +180,7 @@ void BoardWidget::drawPieces(QPainter& painter) {
         int pieceCount = state.pieceCounts[pointIndex];
         Color color = state.colors[pointIndex];
 
-        if (pieceCount > 0 && color != NONE) {
+        if (pieceCount > 0 && color != Color::NONE) {
             int x, y;
             bool isTopRow;
 
@@ -226,17 +226,17 @@ void BoardWidget::drawPieces(QPainter& painter) {
 
     int bearOffX = boardWidth + BEAR_OFF_WIDTH / 2;
     if (state.borneOffWhite > 0) {
-        drawPiecesAtPoint(painter, bearOffX, pieceRadius + 10, state.borneOffWhite, WHITE, 12, true);
+        drawPiecesAtPoint(painter, bearOffX, pieceRadius + 10, state.borneOffWhite, Color::WHITE, 12, true);
     }
     if (state.borneOffBlack > 0) {
-        drawPiecesAtPoint(painter, bearOffX, boardHeight - pieceRadius - 10, state.borneOffBlack, BLACK, 12, false);
+        drawPiecesAtPoint(painter, bearOffX, boardHeight - pieceRadius - 10, state.borneOffBlack, Color::BLACK, 12, false);
     }
 }
 
 void BoardWidget::drawPiecesAtPoint(QPainter& painter, int centerX, int centerY,
     int count, Color color, int radius, bool isTopRow) {
-    QColor pieceColor = (color == WHITE) ? QColor(255, 255, 255) : QColor(0, 0, 0);
-    QColor borderColor = (color == WHITE) ? QColor(200, 200, 200) : QColor(50, 50, 50);
+    QColor pieceColor = (color == Color::WHITE) ? QColor(255, 255, 255) : QColor(0, 0, 0);
+    QColor borderColor = (color == Color::WHITE) ? QColor(200, 200, 200) : QColor(50, 50, 50);
     painter.setBrush(pieceColor);
     painter.setPen(QPen(borderColor, 2));
 
@@ -279,7 +279,7 @@ void BoardWidget::drawBarPieces(QPainter& painter, const GameStateDTO& state) {
 }
 
 void BoardWidget::drawHighlights(QPainter& p) {
-    if (m_winner != NONE) return;
+    if (m_winner != Color::NONE) return;
 
     auto getPointRect = [&](int pointIndex) -> QRect {
         if (pointIndex == Game::BAR_INDEX) {
@@ -360,13 +360,13 @@ int BoardWidget::pointIndexFromPosition(const QPoint& pos) const {
     const int rightTriangleWidth = (w - (barX + barWidth)) / 6;
 
     if (pos.x() > w) {
-        if (m_state.currentPlayer == WHITE) return 24;
-        if (m_state.currentPlayer == BLACK) return -1;
+        if (m_state.currentPlayer == Color::WHITE) return 24;
+        if (m_state.currentPlayer == Color::BLACK) return -1;
     }
 
     if (pos.x() >= barX && pos.x() <= barX + barWidth) {
-        if (m_state.currentPlayer == WHITE && m_state.barWhite > 0) return Game::BAR_INDEX;
-        if (m_state.currentPlayer == BLACK && m_state.barBlack > 0) return Game::BAR_INDEX;
+        if (m_state.currentPlayer == Color::WHITE && m_state.barWhite > 0) return Game::BAR_INDEX;
+        if (m_state.currentPlayer == Color::BLACK && m_state.barBlack > 0) return Game::BAR_INDEX;
         return -1;
     }
 
@@ -404,7 +404,7 @@ int BoardWidget::pointIndexFromPosition(const QPoint& pos) const {
 
 void BoardWidget::mousePressEvent(QMouseEvent* event) {
     if (!m_game) return;
-    if (m_winner != NONE) return; 
+    if (m_winner != Color::NONE) return; 
 
     int index = pointIndexFromPosition(event->pos());
 

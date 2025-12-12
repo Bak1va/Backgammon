@@ -7,7 +7,7 @@
 
 TEST(GameStartTests, PhaseIsNotStartedByDefault) {
     Game g;
-    EXPECT_EQ(g.getPhase(), GamePhase::NotStarted);
+    EXPECT_EQ(g.getPhase(), GamePhase::NOT_STARTED);
 }
 
 TEST(GameStartTests, StartInitializesBoardCorrectly) {
@@ -16,7 +16,7 @@ TEST(GameStartTests, StartInitializesBoardCorrectly) {
 
     GameStateDTO s = g.getState();
 
-    EXPECT_EQ(g.getPhase(), GamePhase::InProgress);
+    EXPECT_EQ(g.getPhase(), GamePhase::IN_PROGRESS);
     EXPECT_EQ(s.currentPlayer, WHITE);
 
     EXPECT_EQ(s.pieceCounts[0], 2);

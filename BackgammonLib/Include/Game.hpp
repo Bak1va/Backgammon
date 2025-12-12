@@ -17,7 +17,7 @@ public:
     GamePhase getPhase() const override;
     Color getCurrentPlayer() const override;
     void rollDice() override;
-    const int *getDice() const override;
+    const std::array<int, 2> getDice() const override;
     bool hasMovesAvailable() const override;
     MoveResult makeMove(int fromIndex, int toIndex) override;
 
@@ -37,7 +37,7 @@ private:
     Board m_board;
     GamePhase m_phase;
     Color m_currentPlayer;
-    int m_dice[2];
+    std::array<int, 2> m_dice;
     bool m_diceRolled;
     std::vector<IGameObserver *> m_observers;
 
@@ -56,5 +56,5 @@ private:
     // Metode noi pentru logica avansata
     bool canBearOff(Color player) const;
     bool isHomeBoard(int index, Color player) const;
-    bool areAllPiecesHome(Color player) const;
+    bool hasAllPiecesHome(Color player) const;
 };

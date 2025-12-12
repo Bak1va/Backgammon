@@ -8,10 +8,10 @@
 TEST(GameEndTests, GameNotFinishedAtStart) {
     Game g;
 
-    EXPECT_EQ(g.getPhase(), GamePhase::NotStarted);
+    EXPECT_EQ(g.getPhase(), GamePhase::NOT_STARTED);
 
     g.start();
-    EXPECT_EQ(g.getPhase(), GamePhase::InProgress);
+    EXPECT_EQ(g.getPhase(), GamePhase::IN_PROGRESS);
 }
 
 TEST(GameEndTests, GameNotFinishedAfterOneMove) {
@@ -21,5 +21,5 @@ TEST(GameEndTests, GameNotFinishedAfterOneMove) {
 
     g.makeMove(0, 0);
 
-    EXPECT_NE(g.getPhase(), GamePhase::Finished);
+    EXPECT_NE(g.getPhase(), GamePhase::FINISHED);
 }

@@ -7,9 +7,9 @@
 class IGameObserver;
 
 enum class GamePhase {
-	NotStarted,
-	InProgress,
-	Finished
+	NOT_STARTED,
+	IN_PROGRESS,
+	FINISHED
 };
 
 class IGame {
@@ -23,7 +23,7 @@ public:
 	// turn/dice
 	virtual Color getCurrentPlayer() const = 0;
 	virtual void rollDice() = 0;
-	virtual const int* getDice() const = 0; // returns pointer to array[2]
+	virtual const std::array<int, 2> getDice() const = 0; // returns pointer to array[2]
 	virtual bool hasMovesAvailable() const = 0;
 
 	// moves (indices 0..23)

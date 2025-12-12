@@ -1,14 +1,13 @@
 #pragma once
 #include "Color.hpp"
 
-class Player
-{
-private:
-	Color playerColor;
-
+class Player {
 public:
-	Player(Color color);
-	~Player();
-	Color getColor() const;
-};
+    Player(Color color);
+    ~Player();
 
+    Color getColor() const;
+
+private:
+    Color playerColor;
+};
