@@ -14,8 +14,7 @@ Game::~Game() {
 }
 
 void Game::start() {
-    m_board = Board(); // reset board
-    m_phase = GamePhase::IN_PROGRESS;
+    m_board = Board();    m_phase = GamePhase::IN_PROGRESS;
     m_currentPlayer = Color::WHITE;
     m_dice[0] = m_dice[1] = 0;
     m_diceRolled = false;
@@ -48,24 +47,19 @@ int Game::playerIndex(Color player) const {
     return (player == Color::WHITE) ? 0 : 1;
 }
 
-// Verifica daca toate piesele jucatorului curent sunt in casa (sau scoase deja)
 bool Game::hasAllPiecesHome(Color player) const {
-    // 1. Verifica daca are piese pe bara
     if (m_board.getBarCount(playerIndex(player)) > 0) return false;
 
-    // 2. Verifica piese in afara casei
-    // Color::WHITE Home: 18-23. Deci cautam piese in 0-17.
-    // Color::BLACK Home: 0-5. Deci cautam piese in 6-23.
-
     if (player == Color::WHITE) {
-        for (int i = 0; i <= 17; ++i) {
+        for (int i = 0; i <= 17; ++i)
+        {
             if (m_board.getColumn(i).getColor() == Color::WHITE &&
                 m_board.getColumn(i).getPieceCount() > 0) {
                 return false;
             }
         }
     }
-    else { // Color::BLACK
+    else {
         for (int i = 6; i <= 23; ++i) {
             if (m_board.getColumn(i).getColor() == Color::BLACK &&
                 m_board.getColumn(i).getPieceCount() > 0) {
@@ -92,54 +86,43 @@ bool Game::hasMovesAvailable() const {
 
     int pIndex = playerIndex(m_currentPlayer);
 
-    // 1. BARA: Daca avem piese pe bara, verificam doar intrarile
     if (m_board.getBarCount(pIndex) > 0) {
-        int entryDice[] = { m_dice[0], m_dice[1] };
+        int entryDice[] = {m_dice[0], m_dice[1] };
         for (int d : entryDice) {
             if (d == 0) continue;
-            // Color::WHITE intra la 0..5 (index d-1)
-            // Color::BLACK intra la 23..18 (index 24-d)
             int entryIndex = (m_currentPlayer == Color::WHITE) ? (d - 1) : (24 - d);
             if (!isMoveBlocked(entryIndex, m_currentPlayer)) return true;
         }
         return false;
     }
 
-    // 2. TABLA: Iteram toate punctele unde avem piese
     for (int i = 0; i < 24; ++i) {
         if (m_board.getColumn(i).getPieceCount() > 0 && m_board.getColumn(i).getColor() == m_currentPlayer) {
-            // Pentru fiecare zar
-            int distances[] = { m_dice[0], m_dice[1] };
-            for (int d : distances) {
+            int distances[] = { m_dice[0], m_dice[1]};
+            for (int d : distances)
+            {
                 if (d == 0) continue;
 
-                // Directia miscarii
                 int target = (m_currentPlayer == Color::WHITE) ? i + d : i - d;
 
-                // --- LOGICA BEARING OFF (SCOATERE PIESE) ---
                 bool offBoardLimit = (m_currentPlayer == Color::WHITE && target > 23) || (m_currentPlayer == Color::BLACK && target < 0);
 
                 if (offBoardLimit) {
                     if (hasAllPiecesHome(m_currentPlayer)) {
-                        // Verificam daca e miscare valida de bearing off
-                        // 1. Zar exact?
                         int distToEdge = (m_currentPlayer == Color::WHITE) ? (24 - i) : (i + 1);
                         if (d == distToEdge) return true;
 
-                        // 2. Zar mai mare, dar este cea mai indepartata piesa?
                         if (d > distToEdge) {
-                            // Verificam daca exista piese mai "in spate"
                             bool furthiests = true;
                             if (m_currentPlayer == Color::WHITE) {
-                                // Pentru Color::WHITE, cautam piese intre 18 si i-1
                                 for (int k = 18; k < i; ++k) {
                                     if (m_board.getColumn(k).getColor() == Color::WHITE && m_board.getColumn(k).getPieceCount() > 0) {
-                                        furthiests = false; break;
+                                        furthiests = false;
+                                        break;
                                     }
                                 }
                             }
                             else {
-                                // Pentru Color::BLACK, cautam piese intre i+1 si 5
                                 for (int k = i + 1; k <= 5; ++k) {
                                     if (m_board.getColumn(k).getColor() == Color::BLACK && m_board.getColumn(k).getPieceCount() > 0) {
                                         furthiests = false; break;
@@ -150,8 +133,8 @@ bool Game::hasMovesAvailable() const {
                         }
                     }
                 }
-                // --- MISCARE NORMALA ---
-                else if (target >= 0 && target < 24) {
+                else if (target >= 0 && target < 24)
+                {
                     if (!isMoveBlocked(target, m_currentPlayer)) return true;
                 }
             }
@@ -166,16 +149,12 @@ bool Game::canSelectPoint(int index) const {
 
     int pIndex = playerIndex(m_currentPlayer);
 
-    // CAZ SPECIAL: Avem piese pe bara?
     if (m_board.getBarCount(pIndex) > 0) {
-        // Putem selecta DOAR bara (indexul special 25)
         return index == BAR_INDEX;
     }
 
-    // Altfel, nu putem selecta bara
     if (index == BAR_INDEX) return false;
 
-    // Validari normale
     if (index < 0 || index >= 24) return false;
     const Column& col = m_board.getColumn(index);
     if (col.getPieceCount() == 0) return false;
@@ -190,18 +169,14 @@ std::vector<int> Game::getLegalTargets(int fromIndex) const {
     if (!canSelectPoint(fromIndex)) return targets;
 
     int pIndex = playerIndex(m_currentPlayer);
-    int dirs[2] = { m_dice[0], m_dice[1] };
+    int dirs[2] = {m_dice[0], m_dice[1] };
 
-    // --- LOGICA PENTRU MUTARE DE PE BARA ---
     if (fromIndex == BAR_INDEX) {
         for (int d : dirs) {
             if (d <= 0) continue;
-            // Color::WHITE intra pe 0..5 (index = d - 1)
-            // Color::BLACK intra pe 23..18 (index = 24 - d)
             int entryIndex = (m_currentPlayer == Color::WHITE) ? (d - 1) : (24 - d);
 
             if (!isMoveBlocked(entryIndex, m_currentPlayer)) {
-                // Evitam duplicatele
                 if (std::find(targets.begin(), targets.end(), entryIndex) == targets.end()) {
                     targets.push_back(entryIndex);
                 }
@@ -210,13 +185,11 @@ std::vector<int> Game::getLegalTargets(int fromIndex) const {
         return targets;
     }
 
-    // --- LOGICA NORMALA DE PE TABLA + BEARING OFF ---
     for (int d : dirs) {
         if (d <= 0) continue;
 
         int toIndex = (m_currentPlayer == Color::WHITE) ? fromIndex + d : fromIndex - d;
 
-        // 1. Verificare Bearing Off (Scoatere Piese)
         bool isOffBoard = (m_currentPlayer == Color::WHITE && toIndex > 23) || (m_currentPlayer == Color::BLACK && toIndex < 0);
 
         if (isOffBoard) {
@@ -224,19 +197,12 @@ std::vector<int> Game::getLegalTargets(int fromIndex) const {
                 int distToEdge = (m_currentPlayer == Color::WHITE) ? (24 - fromIndex) : (fromIndex + 1);
 
                 bool canBearOff = false;
-                // Regula 1: Zar exact
                 if (d == distToEdge) {
                     canBearOff = true;
                 }
-                // Regula 2: Zar mai mare, dar nu ai piese mai indepartate
                 else if (d > distToEdge) {
                     bool isFurthest = true;
                     if (m_currentPlayer == Color::WHITE) {
-                        // Verifica daca mai exista piese la indici mai mici decat fromIndex in casa (18..fromIndex-1)
-                        // Atentie: pt Color::WHITE, "mai in spate" inseamna indici mai mici in intervalul 18-23?
-                        // Nu, Color::WHITE merge 0->23. Indicii 18, 19... sunt primii din casa. 23 e ultimul.
-                        // "Furthest from exit" inseamna indicele cel mai MIC din casa (18).
-                        // Deci daca sunt pe 22 si dau 6. Pot scoate daca nu am nimic pe 18, 19, 20, 21.
                         for (int k = 18; k < fromIndex; ++k) {
                             if (m_board.getColumn(k).getColor() == Color::WHITE && m_board.getColumn(k).getPieceCount() > 0) {
                                 isFurthest = false; break;
@@ -244,10 +210,9 @@ std::vector<int> Game::getLegalTargets(int fromIndex) const {
                         }
                     }
                     else {
-                        // Color::BLACK merge 23->0. "Furthest from exit" inseamna indicele cel mai MARE din casa (5).
-                        // Daca sunt pe 2 si dau 6. Pot scoate daca nu am nimic pe 5, 4, 3.
                         for (int k = fromIndex + 1; k <= 5; ++k) {
-                            if (m_board.getColumn(k).getColor() == Color::BLACK && m_board.getColumn(k).getPieceCount() > 0) {
+                            if (m_board.getColumn(k).getColor() == Color::BLACK && m_board.getColumn(k).getPieceCount() > 0)
+                            {
                                 isFurthest = false; break;
                             }
                         }
@@ -256,19 +221,16 @@ std::vector<int> Game::getLegalTargets(int fromIndex) const {
                 }
 
                 if (canBearOff) {
-                    // Adaugam tinta speciala "Off Board"
-                    // Color::WHITE -> 24, Color::BLACK -> -1
                     int offTarget = (m_currentPlayer == Color::WHITE) ? OFF_BOARD_COLOR_WHITE : OFF_BOARD_COLOR_BLACK;
                     if (std::find(targets.begin(), targets.end(), offTarget) == targets.end()) {
                         targets.push_back(offTarget);
                     }
                 }
             }
-            continue; // Nu mai verificam blocaje sau altele pt off-board
+            continue;
         }
 
-        // 2. Miscare normala pe tabla
-        if (toIndex < 0 || toIndex >= 24) continue; // Safety check
+        if (toIndex < 0 || toIndex >= 24) continue;
 
         if (isMoveBlocked(toIndex, m_currentPlayer)) {
             continue;
@@ -288,16 +250,14 @@ MoveResult Game::makeMove(int fromIndex, int toIndex) {
 
     int pIndex = playerIndex(m_currentPlayer);
 
-    // --- CAZ 1: MUTARE DE PE BARA ---
-    if (fromIndex == BAR_INDEX) {
+    if (fromIndex == BAR_INDEX)
+    {
         if (m_board.getBarCount(pIndex) == 0) return MoveResult::INVALID_MOVE;
 
-        // Calculam zarul folosit
         int dieUsed = 0;
         if (m_currentPlayer == Color::WHITE) dieUsed = toIndex + 1;
         else dieUsed = 24 - toIndex;
 
-        // Gasim zarul in array
         int dieIdx = -1;
         if (m_dice[0] == dieUsed) dieIdx = 0;
         else if (m_dice[1] == dieUsed) dieIdx = 1;
@@ -305,7 +265,6 @@ MoveResult Game::makeMove(int fromIndex, int toIndex) {
         if (dieIdx == -1) return MoveResult::INVALID_MOVE;
         if (isMoveBlocked(toIndex, m_currentPlayer)) return MoveResult::BLOCKED_BY_OPPONENT;
 
-        // HIT Logic
         if (canHit(toIndex, m_currentPlayer)) {
             Column& toCol = m_board.getColumn(toIndex);
             toCol.removePiece();
@@ -314,18 +273,15 @@ MoveResult Game::makeMove(int fromIndex, int toIndex) {
 
         m_board.decrementBarCount(pIndex);
         m_board.getColumn(toIndex).addPiece(m_currentPlayer);
-        m_dice[dieIdx] = 0; // Consuma zarul
+        m_dice[dieIdx] = 0;
     }
-    // --- CAZ 2: MUTARE DE PE TABLA ---
     else {
-        // Validari basic
         if (fromIndex < 0 || fromIndex >= 24) return MoveResult::INVALID_FROM_COLUMN;
-        if (m_board.getBarCount(pIndex) > 0) return MoveResult::INVALID_MOVE; // Trebuie intai scos de pe bara
+        if (m_board.getBarCount(pIndex) > 0) return MoveResult::INVALID_MOVE;
 
         Column& fromCol = m_board.getColumn(fromIndex);
         if (fromCol.getPieceCount() == 0 || fromCol.getColor() != m_currentPlayer) return MoveResult::INVALID_MOVE;
 
-        // Verificam daca e Bearing Off (destinatia e 24 sau -1)
         bool isBearingOff = (toIndex == OFF_BOARD_COLOR_WHITE) || (toIndex == OFF_BOARD_COLOR_BLACK);
 
         if (isBearingOff) {
@@ -333,19 +289,14 @@ MoveResult Game::makeMove(int fromIndex, int toIndex) {
             if ((m_currentPlayer == Color::WHITE && toIndex != OFF_BOARD_COLOR_WHITE) ||
                 (m_currentPlayer == Color::BLACK && toIndex != OFF_BOARD_COLOR_BLACK)) return MoveResult::INVALID_MOVE;
 
-            // Calculam zarul necesar
             int distToEdge = (m_currentPlayer == Color::WHITE) ? (24 - fromIndex) : (fromIndex + 1);
 
-            // Cautam un zar valid
             int dieIdx = -1;
 
-            // Prioritate 1: Zar exact
             if (m_dice[0] == distToEdge) dieIdx = 0;
             else if (m_dice[1] == distToEdge) dieIdx = 1;
 
-            // Prioritate 2: Zar mai mare (daca e piesa cea mai indepartata)
             if (dieIdx == -1) {
-                // Trebuie sa verificam din nou conditia "furthest piece"
                 bool isFurthest = true;
                 if (m_currentPlayer == Color::WHITE) {
                     for (int k = 18; k < fromIndex; ++k) {
@@ -363,8 +314,6 @@ MoveResult Game::makeMove(int fromIndex, int toIndex) {
                 }
 
                 if (isFurthest) {
-                    // Folosim zarul mai mare decat distanta, dar luam cel mai mic dintre cele care sunt suficient de mari? 
-                    // De obicei se foloseste orice zar > distanta. Luam primul gasit.
                     if (m_dice[0] > distToEdge) dieIdx = 0;
                     else if (m_dice[1] > distToEdge) dieIdx = 1;
                 }
@@ -372,14 +321,12 @@ MoveResult Game::makeMove(int fromIndex, int toIndex) {
 
             if (dieIdx == -1) return MoveResult::INVALID_MOVE;
 
-            // Executam scoaterea
             fromCol.removePiece();
             m_board.incrementBorneOffCount(pIndex);
             m_dice[dieIdx] = 0;
 
             notifyMoveMade(fromIndex, toIndex, MoveResult::SUCCESS);
 
-            // VERIFICARE CASTIG
             if (m_board.getBorneOffCount(pIndex) == 15) {
                 m_phase = GamePhase::FINISHED;
                 notifyGameFinished(m_currentPlayer);
@@ -388,7 +335,6 @@ MoveResult Game::makeMove(int fromIndex, int toIndex) {
 
         }
         else {
-            // --- Mutare Standard pe tabla ---
             if (toIndex < 0 || toIndex >= 24) return MoveResult::INVALID_TO_COLUMN;
 
             int distance = std::abs(toIndex - fromIndex);
@@ -425,7 +371,6 @@ MoveResult Game::makeMove(int fromIndex, int toIndex) {
     return MoveResult::SUCCESS;
 }
 
-// ... restul metodelor (getters, observers) raman identice cu fisierul anterior ...
 int Game::getColumnCount(int index) const { return m_board.getColumn(index).getPieceCount(); }
 Color Game::getColumnColor(int index) const { return m_board.getColumn(index).getColor(); }
 int Game::getBarCount(Color player) const { return m_board.getBarCount(playerIndex(player)); }

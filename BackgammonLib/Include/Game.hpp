@@ -7,13 +7,12 @@
 
 class Game : public IGame {
 public:
-    static constexpr int BAR_INDEX = 25; // Index special pentru selectia barei
+    static constexpr int BAR_INDEX = 25;
 
     Game();
     ~Game() override;
 
-    // IGame implementation
-    void start() override;
+void start() override;
     GamePhase getPhase() const override;
     Color getCurrentPlayer() const override;
     void rollDice() override;
@@ -41,7 +40,6 @@ private:
     bool m_diceRolled;
     std::vector<IGameObserver *> m_observers;
 
-    // Helper methods logic
     void notifyGameStarted();
     void notifyDiceRolled();
     void notifyMoveMade(int fromIndex, int toIndex, MoveResult result);
@@ -53,7 +51,6 @@ private:
     bool canHit(int toIndex, Color player) const;
     int playerIndex(Color player) const;
 
-    // Metode noi pentru logica avansata
     bool canBearOff(Color player) const;
     bool isHomeBoard(int index, Color player) const;
     bool hasAllPiecesHome(Color player) const;
