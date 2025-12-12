@@ -2,6 +2,7 @@
 #include "Color.hpp"
 #include "MoveResult.hpp"
 #include "GameStateDTO.hpp"
+#include <vector>
 
 class IGameObserver;
 

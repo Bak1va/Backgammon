@@ -1,11 +1,10 @@
 <RCC>
-    <qresource prefix="/BackgammonUI"/>
     <qresource prefix="/BackgammonUI/assets">
-        <file>../../Assets/dice1.png</file>
-        <file>../../Assets/dice2.png</file>
-        <file>../../Assets/dice3.png</file>
-        <file>../../Assets/dice4.png</file>
-        <file>../../Assets/dice5.png</file>
-        <file>../../Assets/dice6.png</file>
+        <file alias="dice1.png">../../Assets/dice1.png</file>
+        <file alias="dice2.png">../../Assets/dice2.png</file>
+        <file alias="dice3.png">../../Assets/dice3.png</file>
+        <file alias="dice4.png">../../Assets/dice4.png</file>
+        <file alias="dice5.png">../../Assets/dice5.png</file>
+        <file alias="dice6.png">../../Assets/dice6.png</file>
     </qresource>
 </RCC>

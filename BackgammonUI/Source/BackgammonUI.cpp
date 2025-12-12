@@ -38,8 +38,10 @@ QPixmap BackgammonUI::dicePixmap(int value) const
 {
 
 	if (value >= 1 && value <= 6) {
-		qDebug() << value;
-		return QPixmap(QString(":/BackgammonUI/assets/assets/dice%1.png").arg(value));
+		qDebug() << "Loading dice:" << value;
+		QString path = QString(":/BackgammonUI/assets/dice%1.png").arg(value);
+		QPixmap pixmap(path);
+		return pixmap;
 	}
 	return QPixmap();
 
