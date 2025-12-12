@@ -126,7 +126,8 @@ void BackgammonUI::setupUi() {
 void BackgammonUI::setupMenu() {
     auto *gameMenu = menuBar()->addMenu("Game");
 
-    auto *newGameAction = new QAction("New Game", this); // ReSharper disable once CppDFAMemoryLeak
+    // ReSharper disable once CppDFAMemoryLeak
+    auto *newGameAction = new QAction("New Game", this);
     connect(newGameAction, &QAction::triggered, this, &BackgammonUI::onNewGame);
     gameMenu->addAction(newGameAction);
 }
