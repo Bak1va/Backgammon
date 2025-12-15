@@ -1,0 +1,21 @@
+PROJECT_NAME           = "@PROJECT_NAME@"
+OUTPUT_DIRECTORY       = "@CMAKE_CURRENT_BINARY_DIR@/docs"
+CREATE_SUBDIRS         = YES
+OUTPUT_LANGUAGE        = English
+EXTRACT_ALL            = YES
+RECURSIVE              = YES
+EXTRACT_PRIVATE        = NO
+EXTRACT_STATIC         = YES
+GENERATE_HTML          = YES
+GENERATE_LATEX         = NO
+# DOXYGEN_INPUT will be filled by CMake; put each path on its own line
+INPUT                  = @DOXYGEN_INPUT@
+FILE_PATTERNS          = *.cpp *.hpp *.h *.hPP
+STRIP_FROM_PATH        = "@CMAKE_CURRENT_SOURCE_DIR@"
+FULL_PATH_NAMES        = NO
+INLINE_SOURCES         = YES
+SOURCE_BROWSER         = YES
+QUIET                  = NO
+WARNINGS               = YES
+HAVE_DOT               = NO
+
