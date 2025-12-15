@@ -16,6 +16,6 @@ public:
 
 private:
     std::array<Column, 24> m_columns;
-    int m_barCount[2]; // nr de piese pe bara pentru fiecare jucator
-    int m_borneOffCount[2]; // nr de piese scoase pentru fiecare jucator
+    int m_barCount[2];
+    int m_borneOffCount[2];
 };
