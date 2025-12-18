@@ -19,11 +19,14 @@ void start() override;
     const std::array<int, 2> getDice() const override;
     bool hasMovesAvailable() const override;
     MoveResult makeMove(int fromIndex, int toIndex) override;
-
+    // Opening roll methods
     void rollOpeningDice() override;
     int getOpeningDiceWhite() const override;
     int getOpeningDiceBlack() const override;
     void startGameAfterOpening() override;
+
+    // Turn management
+    void passTurn() override;
 
     int getColumnCount(int index) const override;
     Color getColumnColor(int index) const override;

@@ -321,7 +321,11 @@ void BackgammonUI::onRollDice() {
     if (!m_game->hasMovesAvailable()) {
         const Color currentPlayer = m_game->getCurrentPlayer();
         const QString playerText = (currentPlayer == Color::WHITE) ? "White" : "Black";
-        m_statusLabel->setText(playerText + " has no legal moves. Turn will pass...");
+        m_statusLabel->setText(playerText + " has no legal moves. Turn passed.");
+
+        // Automatically pass the turn
+        m_game->passTurn();
+        updateUI();
     }
 }
 

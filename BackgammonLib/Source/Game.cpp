@@ -504,3 +504,14 @@ void Game::startGameAfterOpening() {
     }
 }
 
+void Game::passTurn() {
+    if (m_phase != GamePhase::IN_PROGRESS) {
+        return;
+    }
+
+    // Clear dice and switch turn
+    m_dice[0] = 0;
+    m_dice[1] = 0;
+    m_diceRolled = false;
+    switchTurn();
+}

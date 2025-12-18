@@ -33,6 +33,9 @@ virtual void start() = 0;
 	virtual int getOpeningDiceBlack() const = 0;
 	virtual void startGameAfterOpening() = 0;
 
+	// turn management
+	virtual void passTurn() = 0;
+
 	// moves (indices 0..23)
 	virtual MoveResult makeMove(int fromIndex, int toIndex) = 0;
 
