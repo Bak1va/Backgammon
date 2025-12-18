@@ -17,4 +17,7 @@ struct GameStateDTO {
 
     int dice1 = 0;
     int dice2 = 0;
+
+    int openingDiceWhite = 0;
+    int openingDiceBlack = 0;
 };

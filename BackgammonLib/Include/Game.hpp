@@ -21,6 +21,11 @@ public:
     bool hasMovesAvailable() const override;
     MoveResult makeMove(int fromIndex, int toIndex) override;
 
+    void rollOpeningDice() override;
+    int getOpeningDiceWhite() const override;
+    int getOpeningDiceBlack() const override;
+    void startGameAfterOpening() override;
+
     int getColumnCount(int index) const override;
     Color getColumnColor(int index) const override;
     int getBarCount(Color player) const override;
@@ -41,6 +46,10 @@ private:
     bool m_diceRolled;
     std::vector<IGameObserver *> m_observers;
 
+    // Opening roll state
+    int m_openingDiceWhite;
+    int m_openingDiceBlack;
+
     // Helper methods logic
     void notifyGameStarted();
     void notifyDiceRolled();
@@ -49,11 +58,12 @@ private:
     void notifyGameFinished(Color winner);
     void switchTurn();
 
+    int rollSingleDie();
+
     bool isMoveBlocked(int toIndex, Color player) const;
     bool canHit(int toIndex, Color player) const;
     int playerIndex(Color player) const;
 
-    // Metode noi pentru logica avansata
     bool canBearOff(Color player) const;
     bool isHomeBoard(int index, Color player) const;
     bool hasAllPiecesHome(Color player) const;

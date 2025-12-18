@@ -8,6 +8,9 @@ class IGameObserver;
 
 enum class GamePhase {
 	NOT_STARTED,
+	OPENING_ROLL_WHITE,
+	OPENING_ROLL_BLACK,
+	OPENING_ROLL_COMPARE,
 	IN_PROGRESS,
 	FINISHED
 };
@@ -25,6 +28,12 @@ public:
 	virtual void rollDice() = 0;
 	virtual const std::array<int, 2> getDice() const = 0; // returns pointer to array[2]
 	virtual bool hasMovesAvailable() const = 0;
+
+	// opening roll
+	virtual void rollOpeningDice() = 0;
+	virtual int getOpeningDiceWhite() const = 0;
+	virtual int getOpeningDiceBlack() const = 0;
+	virtual void startGameAfterOpening() = 0;
 
 	// moves (indices 0..23)
 	virtual MoveResult makeMove(int fromIndex, int toIndex) = 0;

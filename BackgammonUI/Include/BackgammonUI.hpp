@@ -30,6 +30,7 @@ private:
     void updateDiceDisplay(int dice1, int dice2) const;
     void updatePlayerDisplay(Color currentPlayer) const;
     void updateStatusDisplay(bool diceConsumed, Color currentPlayer) const;
+    void updateOpeningRollDisplay() const;
 
     [[nodiscard]] QPixmap dicePixmap(int value) const;
 
@@ -41,4 +42,6 @@ private:
     QLabel* m_statusLabel;
     QLabel* m_diceImg1;
     QLabel* m_diceImg2;
+    QLabel* m_openingDiceWhiteLabel;
+    QLabel* m_openingDiceBlackLabel;
 };

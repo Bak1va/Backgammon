@@ -56,7 +56,11 @@ void BoardWidget::onMoveMade(Color, int, int, MoveResult) {
     if (m_mainWindow) m_mainWindow->updateUI();
 }
 
-void BoardWidget::onTurnChanged(Color) { clearSelection(); refreshState(); }
+void BoardWidget::onTurnChanged(Color) {
+    clearSelection();
+    refreshState();
+    if (m_mainWindow) m_mainWindow->updateUI();
+}
 
 void BoardWidget::onGameFinished(Color winner) {
     m_winner = winner;
@@ -77,7 +81,6 @@ void BoardWidget::paintEvent(QPaintEvent*) {
     drawPieces(p);
     drawHighlights(p);
 
-    // If the game is over we draw the panel.
     if (m_winner != Color::NONE) {
         drawGameOverPanel(p);
     }

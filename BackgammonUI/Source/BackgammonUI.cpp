@@ -3,7 +3,6 @@
 #include <QAction>
 #include <QLabel>
 #include <QMenuBar>
-#include <QMessageBox>
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QWidget>
@@ -19,7 +18,7 @@ namespace {
 
     const QString PLAYER_LABEL_STYLE = "font-size: 14pt; font-weight: bold; padding: 5px;";
     const QString ROLL_BUTTON_STYLE = "font-size: 12pt; padding: 10px 20px; background-color: #4CAF50; color: white;";
-    const QString STATUS_LABEL_STYLE = "font-size: 11pt; padding: 5px; background-color: #f0f0f0;";
+    const QString STATUS_LABEL_STYLE = "font-size: 11pt; padding: 5px; background-color: #000000; color: white;";
     const QString DICE_PATH_TEMPLATE = ":/BackgammonUI/assets/assets/dice%1.png";
 }
 
@@ -31,15 +30,18 @@ BackgammonUI::BackgammonUI(QWidget *parent)
       , m_playerLabel(nullptr)
       , m_statusLabel(nullptr)
       , m_diceImg1(nullptr)
-      , m_diceImg2(nullptr) {
+      , m_diceImg2(nullptr)
+      , m_openingDiceWhiteLabel(nullptr)
+      , m_openingDiceBlackLabel(nullptr) {
+
+    m_game->start();
+
     setupUi();
     setupMenu();
 
     if (m_boardWidget) {
         m_game->addObserver(m_boardWidget);
     }
-
-    m_game->start();
 }
 
 BackgammonUI::~BackgammonUI() {
@@ -47,7 +49,6 @@ BackgammonUI::~BackgammonUI() {
     if (m_boardWidget && m_game) {
         m_game->removeObserver(m_boardWidget);
     }
-    // Qt parent-child relationship handles widget cleanup automatically
 }
 
 QPixmap BackgammonUI::dicePixmap(int value) const
@@ -76,6 +77,17 @@ void BackgammonUI::setupUi() {
     m_playerLabel = new QLabel("Current Player: White", controlPanel);
     m_playerLabel->setStyleSheet(PLAYER_LABEL_STYLE);
     controlLayout->addWidget(m_playerLabel);
+
+    controlLayout->addStretch();
+
+    // Opening dice display (for determining first player)
+    m_openingDiceWhiteLabel = new QLabel("White: -", controlPanel);
+    m_openingDiceWhiteLabel->setStyleSheet("font-size: 11pt; padding: 5px;");
+    controlLayout->addWidget(m_openingDiceWhiteLabel);
+
+    m_openingDiceBlackLabel = new QLabel("Black: -", controlPanel);
+    m_openingDiceBlackLabel->setStyleSheet("font-size: 11pt; padding: 5px;");
+    controlLayout->addWidget(m_openingDiceBlackLabel);
 
     controlLayout->addStretch();
 
@@ -113,7 +125,7 @@ void BackgammonUI::setupUi() {
     mainLayout->addWidget(m_boardWidget);
 
     // Status label
-    m_statusLabel = new QLabel("Welcome! Click 'Roll Dice' to start your turn.", central);
+    m_statusLabel = new QLabel("", central);
     m_statusLabel->setStyleSheet(STATUS_LABEL_STYLE);
     m_statusLabel->setAlignment(Qt::AlignCenter);
     mainLayout->addWidget(m_statusLabel);
@@ -138,14 +150,69 @@ void BackgammonUI::updateUI() {
     }
 
     const GameStateDTO state = m_game->getState();
+    const GamePhase phase = m_game->getPhase();
+
+
+    // Handle opening roll phases
+    if (phase == GamePhase::OPENING_ROLL_WHITE) {
+        updateOpeningRollDisplay();
+        m_rollButton->setEnabled(true);
+        m_rollButton->setText("Roll Dice");
+        m_statusLabel->setText("Roll opening dice for White");
+        updatePlayerDisplay(Color::WHITE);
+        updateDiceDisplay(0, 0);
+        return;
+    }
+
+    if (phase == GamePhase::OPENING_ROLL_BLACK) {
+        updateOpeningRollDisplay();
+        m_rollButton->setEnabled(true);
+        m_rollButton->setText("Roll Dice");
+        const QString whiteRoll = QString::number(m_game->getOpeningDiceWhite());
+        m_statusLabel->setText("White rolled " + whiteRoll + ". Roll opening dice for Black");
+        updatePlayerDisplay(Color::BLACK);
+        updateDiceDisplay(m_game->getOpeningDiceWhite(), 0);
+        return;
+    }
+
+    if (phase == GamePhase::OPENING_ROLL_COMPARE) {
+        updateOpeningRollDisplay();
+        m_rollButton->setEnabled(true);
+        m_rollButton->setText("Roll Dice");
+        const int whiteRoll = m_game->getOpeningDiceWhite();
+        const int blackRoll = m_game->getOpeningDiceBlack();
+
+        // Check for tie situation
+        if (whiteRoll == blackRoll) {
+            m_statusLabel->setText(QString("Tie! Both rolled %1. Press button to roll again").arg(whiteRoll));
+            updatePlayerDisplay(Color::WHITE);
+        } else {
+            const Color startingPlayer = m_game->getCurrentPlayer();
+            const QString playerText = (startingPlayer == Color::WHITE) ? "White" : "Black";
+            m_statusLabel->setText(QString("White: %1, Black: %2. %3 starts - Press to roll for first move").arg(whiteRoll).arg(blackRoll).arg(playerText));
+            updatePlayerDisplay(startingPlayer);
+        }
+
+        updateDiceDisplay(whiteRoll, blackRoll);
+        if (m_openingDiceWhiteLabel) m_openingDiceWhiteLabel->hide();
+        if (m_openingDiceBlackLabel) m_openingDiceBlackLabel->hide();
+        return;
+    }
 
     updatePlayerDisplay(state.currentPlayer);
     updateDiceDisplay(state.dice1, state.dice2);
 
     const bool diceConsumed = (state.dice1 == 0 && state.dice2 == 0);
     m_rollButton->setEnabled(diceConsumed);
+    m_rollButton->setText("Roll Dice");
 
-    updateStatusDisplay(diceConsumed, state.currentPlayer);
+    if (diceConsumed) {
+        const QString playerText = (state.currentPlayer == Color::WHITE) ? "White" : "Black";
+        m_statusLabel->setText(playerText + "'s turn - Roll dice");
+    } else {
+        const QString playerText = (state.currentPlayer == Color::WHITE) ? "White" : "Black";
+        m_statusLabel->setText(playerText + " - Make your moves");
+    }
 }
 
 void BackgammonUI::updateDiceDisplay(int dice1, int dice2) const {
@@ -189,13 +256,62 @@ void BackgammonUI::updateStatusDisplay(bool diceConsumed, Color currentPlayer) c
     }
 }
 
+void BackgammonUI::updateOpeningRollDisplay() const {
+    if (!m_game) {
+        return;
+    }
+
+    const int whiteRoll = m_game->getOpeningDiceWhite();
+    const int blackRoll = m_game->getOpeningDiceBlack();
+
+    if (m_openingDiceWhiteLabel) {
+        if (whiteRoll > 0) {
+            m_openingDiceWhiteLabel->setText(QString("White: %1").arg(whiteRoll));
+        } else {
+            m_openingDiceWhiteLabel->setText("White: -");
+        }
+    }
+
+    if (m_openingDiceBlackLabel) {
+        if (blackRoll > 0) {
+            m_openingDiceBlackLabel->setText(QString("Black: %1").arg(blackRoll));
+        } else {
+            m_openingDiceBlackLabel->setText("Black: -");
+        }
+    }
+}
+
 void BackgammonUI::onRollDice() {
     if (!m_game) {
         return;
     }
 
-    if (m_game->getPhase() != GamePhase::IN_PROGRESS) {
-        QMessageBox::information(this, "Backgammon", "Please start a new game first!");
+    const GamePhase phase = m_game->getPhase();
+
+    if (phase == GamePhase::OPENING_ROLL_WHITE || phase == GamePhase::OPENING_ROLL_BLACK) {
+        m_game->rollOpeningDice();
+        updateUI();
+        return;
+    }
+
+    if (phase == GamePhase::OPENING_ROLL_COMPARE) {
+        const int whiteRoll = m_game->getOpeningDiceWhite();
+        const int blackRoll = m_game->getOpeningDiceBlack();
+
+        if (whiteRoll == blackRoll) {
+            m_game->start();
+            updateUI();
+            return;
+        }
+
+        m_game->startGameAfterOpening();
+        m_game->rollDice();
+        updateUI();
+        return;
+    }
+
+    if (phase != GamePhase::IN_PROGRESS) {
+        m_statusLabel->setText("Please start a new game first!");
         return;
     }
 
@@ -213,6 +329,10 @@ void BackgammonUI::onNewGame() {
     if (!m_game) {
         return;
     }
+
+
+    if (m_openingDiceWhiteLabel) m_openingDiceWhiteLabel->show();
+    if (m_openingDiceBlackLabel) m_openingDiceBlackLabel->show();
 
     m_game->start();
     updateUI();
