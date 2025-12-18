@@ -1,12 +1,9 @@
 ﻿#include "Board.hpp"
 
-Board::Board() {
-    // Initialize all columns to empty
-    for (int i = 0; i < 24; ++i) {
+Board::Board() {for (int i = 0; i < 24; ++i) {
         m_columns[i] = Column(0, Color::NONE);
     }
 
-    // Initialize bar and borne off counts
     m_barCount[0] = 0;
     m_barCount[1] = 0;
     m_borneOffCount[0] = 0;

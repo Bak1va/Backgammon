@@ -25,7 +25,6 @@ target_link_libraries(BackgammonLogicTests PRIVATE
         gmock
 )
 
-target_compile_features(BackgammonLogicTests PRIVATE cxx_std_17)
 target_include_directories(BackgammonLogicTests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_test(NAME BackgammonLogicTests COMMAND BackgammonLogicTests)

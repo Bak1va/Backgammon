@@ -60,7 +60,8 @@ bool Game::hasAllPiecesHome(Color player) const {
     if (m_board.getBarCount(playerIndex(player)) > 0) return false;
 
     if (player == Color::WHITE) {
-        for (int i = 0; i <= 17; ++i) {
+        for (int i = 0; i <= 17; ++i)
+        {
             if (m_board.getColumn(i).getColor() == Color::WHITE &&
                 m_board.getColumn(i).getPieceCount() > 0) {
                 return false;
@@ -95,7 +96,7 @@ bool Game::hasMovesAvailable() const {
     int pIndex = playerIndex(m_currentPlayer);
 
     if (m_board.getBarCount(pIndex) > 0) {
-        int entryDice[] = { m_dice[0], m_dice[1] };
+        int entryDice[] = {m_dice[0], m_dice[1] };
         for (int d : entryDice) {
             if (d == 0) continue;
             int entryIndex = (m_currentPlayer == Color::WHITE) ? (d - 1) : (24 - d);
@@ -123,7 +124,8 @@ bool Game::hasMovesAvailable() const {
                             if (m_currentPlayer == Color::WHITE) {
                                 for (int k = 18; k < i; ++k) {
                                     if (m_board.getColumn(k).getColor() == Color::WHITE && m_board.getColumn(k).getPieceCount() > 0) {
-                                        furthiests = false; break;
+                                        furthiests = false;
+                                        break;
                                     }
                                 }
                             }
@@ -172,7 +174,7 @@ std::vector<int> Game::getLegalTargets(int fromIndex) const {
     if (!canSelectPoint(fromIndex)) return targets;
 
     int pIndex = playerIndex(m_currentPlayer);
-    int dirs[2] = { m_dice[0], m_dice[1] };
+    int dirs[2] = {m_dice[0], m_dice[1] };
 
     if (fromIndex == BAR_INDEX) {
         for (int d : dirs) {
@@ -214,7 +216,8 @@ std::vector<int> Game::getLegalTargets(int fromIndex) const {
                     }
                     else {
                         for (int k = fromIndex + 1; k <= 5; ++k) {
-                            if (m_board.getColumn(k).getColor() == Color::BLACK && m_board.getColumn(k).getPieceCount() > 0) {
+                            if (m_board.getColumn(k).getColor() == Color::BLACK && m_board.getColumn(k).getPieceCount() > 0)
+                            {
                                 isFurthest = false; break;
                             }
                         }
@@ -280,7 +283,7 @@ MoveResult Game::makeMove(int fromIndex, int toIndex) {
     else {
 
         if (fromIndex < 0 || fromIndex >= 24) return MoveResult::INVALID_FROM_COLUMN;
-        if (m_board.getBarCount(pIndex) > 0) return MoveResult::INVALID_MOVE; // Trebuie intai scos de pe bara
+        if (m_board.getBarCount(pIndex) > 0) return MoveResult::INVALID_MOVE;
 
         Column& fromCol = m_board.getColumn(fromIndex);
         if (fromCol.getPieceCount() == 0 || fromCol.getColor() != m_currentPlayer) return MoveResult::INVALID_MOVE;
@@ -374,7 +377,6 @@ MoveResult Game::makeMove(int fromIndex, int toIndex) {
     return MoveResult::SUCCESS;
 }
 
-// ... restul metodelor (getters, observers) raman identice cu fisierul anterior ...
 int Game::getColumnCount(int index) const { return m_board.getColumn(index).getPieceCount(); }
 Color Game::getColumnColor(int index) const { return m_board.getColumn(index).getColor(); }
 int Game::getBarCount(Color player) const { return m_board.getBarCount(playerIndex(player)); }

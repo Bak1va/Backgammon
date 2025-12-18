@@ -19,9 +19,9 @@ target_include_directories(BackgammonLib
         $<INSTALL_INTERFACE:include>
 )
 
-target_compile_features(BackgammonLib PUBLIC cxx_std_17)
-
 set_target_properties(BackgammonLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 add_library(Backgammon::Lib ALIAS BackgammonLib)
+
+
 

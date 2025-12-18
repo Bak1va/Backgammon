@@ -7,13 +7,12 @@
 
 class Game : public IGame {
 public:
-    static constexpr int BAR_INDEX = 25; // Index special pentru selectia barei
+    static constexpr int BAR_INDEX = 25;
 
     Game();
     ~Game() override;
 
-    // IGame implementation
-    void start() override;
+void start() override;
     GamePhase getPhase() const override;
     Color getCurrentPlayer() const override;
     void rollDice() override;
