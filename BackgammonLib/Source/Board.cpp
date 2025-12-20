@@ -1,4 +1,13 @@
-﻿#include "Board.hpp"
+﻿/**
+ * @file Board.cpp
+ * @brief Implementation of the Board class.
+ *
+ * The board is initialized with the standard Backgammon starting position:
+ * - White pieces: 2 on point 0, 5 on point 11, 3 on point 16, 5 on point 18
+ * - Black pieces: 5 on point 5, 3 on point 7, 5 on point 12, 2 on point 23
+ */
+
+#include "Board.hpp"
 
 Board::Board() {for (int i = 0; i < 24; ++i) {
         m_columns[i] = Column(0, Color::NONE);

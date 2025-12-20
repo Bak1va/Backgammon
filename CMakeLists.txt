@@ -14,7 +14,7 @@ option(BUILD_DOCS "Build Doxygen documentation" ${DOXYGEN_FOUND})
 option(GENERATE_DOCS_ON_CONFIG "Run Doxygen during CMake configure (regenerate docs on CMake reload)" ON)
 
 if (BUILD_DOCS AND DOXYGEN_FOUND)
-    set(DOXYGEN_INPUT "${CMAKE_SOURCE_DIR}/BackgammonLib/Include ${CMAKE_SOURCE_DIR}/BackgammonLib/Source")
+    set(DOXYGEN_INPUT "${CMAKE_SOURCE_DIR}/BackgammonLib/Include ${CMAKE_SOURCE_DIR}/BackgammonLib/Source ${CMAKE_SOURCE_DIR}/BackgammonUI/Include ${CMAKE_SOURCE_DIR}/BackgammonUI/Source")
 
     set(DOXYFILE_IN ${CMAKE_SOURCE_DIR}/Doxyfile)
     set(DOXYFILE_OUT ${CMAKE_BINARY_DIR}/Doxyfile)

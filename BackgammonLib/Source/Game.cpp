@@ -1,10 +1,26 @@
-﻿#include <algorithm>
+﻿/**
+ * @file Game.cpp
+ * @brief Implementation of the Game class containing all Backgammon game logic.
+ *
+ * This file implements the complete rules of Backgammon including:
+ * - Opening roll phase to determine starting player
+ * - Movement validation based on dice rolls
+ * - Hitting opponent pieces and bar re-entry
+ * - Bearing off pieces from the home board
+ * - Win detection when a player bears off all 15 pieces
+ * - Turn management and automatic turn switching
+ */
+
+#include <algorithm>
 #include <random>
 #include <cmath>
 #include "Game.hpp"
 #include "RollOpeningDiceCommand.hpp"
 
+/// Special index value for bearing off white pieces
 constexpr uint32_t OFF_BOARD_COLOR_WHITE = 24;
+
+/// Special index value for bearing off black pieces
 constexpr uint32_t OFF_BOARD_COLOR_BLACK = -1;
 
 Game::Game()

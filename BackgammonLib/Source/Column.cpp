@@ -1,3 +1,8 @@
+/**
+ * @file Column.cpp
+ * @brief Implementation of the Column class.
+ */
+
 #include "Column.hpp"
 
 Column::Column() : m_pieceCount(0), m_color(Color::NONE) {

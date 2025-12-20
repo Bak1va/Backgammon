@@ -1,4 +1,12 @@
-﻿#include "BackgammonUI.hpp"
+﻿/**
+ * @file BackgammonUI.cpp
+ * @brief Implementation of the BackgammonUI main window class.
+ *
+ * This file implements the main window UI including layout, controls,
+ * menu bar, and all event handlers for the Backgammon game.
+ */
+
+#include "BackgammonUI.hpp"
 
 #include <QAction>
 #include <QLabel>
@@ -11,14 +19,21 @@
 #include "Game.hpp"
 
 namespace {
-    constexpr int WINDOW_WIDTH = 1000;
-    constexpr int WINDOW_HEIGHT = 650;
-    constexpr int DICE_SIZE = 48;
-    constexpr int DICE_SPACING = 8;
+    constexpr int WINDOW_WIDTH = 1000;     ///< Default window width
+    constexpr int WINDOW_HEIGHT = 650;     ///< Default window height
+    constexpr int DICE_SIZE = 48;          ///< Size of dice images in pixels
+    constexpr int DICE_SPACING = 8;        ///< Spacing between dice images
 
+    /// Stylesheet for the player label
     const QString PLAYER_LABEL_STYLE = "font-size: 14pt; font-weight: bold; padding: 5px;";
+
+    /// Stylesheet for the roll dice button
     const QString ROLL_BUTTON_STYLE = "font-size: 12pt; padding: 10px 20px; background-color: #4CAF50; color: white;";
+
+    /// Stylesheet for the status message label
     const QString STATUS_LABEL_STYLE = "font-size: 11pt; padding: 5px; background-color: #000000; color: white;";
+
+    /// Template for dice image resource paths
     const QString DICE_PATH_TEMPLATE = ":/BackgammonUI/assets/assets/dice%1.png";
 }
 

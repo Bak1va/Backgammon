@@ -1,4 +1,16 @@
-﻿#include "BoardWidget.hpp"
+﻿/**
+ * @file BoardWidget.cpp
+ * @brief Implementation of the BoardWidget class for rendering and interaction.
+ *
+ * This file implements all the visual rendering of the Backgammon board including:
+ * - Drawing the 24 triangular points
+ * - Rendering pieces with correct colors and stacking
+ * - Highlighting selected pieces and legal moves
+ * - Converting mouse clicks to board coordinates
+ * - Handling game-over display
+ */
+
+#include "BoardWidget.hpp"
 #include "BackgammonUI.hpp"
 #include "Game.hpp"
 #include <QPainter>
@@ -6,6 +18,7 @@
 #include <QMessageBox> 
 #include <algorithm>
 
+/// Width of the bear-off area on each side of the board
 constexpr int BEAR_OFF_WIDTH = 60;
 
 BoardWidget::BoardWidget(QWidget* parent, IGame* game, BackgammonUI* mainWindow)
